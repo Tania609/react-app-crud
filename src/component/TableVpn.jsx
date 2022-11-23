@@ -46,7 +46,7 @@ const TableVpn = () => {
         setEntidadDialog,setSubmitted,entidadDialog,submitted]=DialogComponent();
 
     const [dropdownEmpleados,dropdownOficinas,dropdownPerfiles,dropdownEstados]=DropdownComponent({entidad,setEntidad});
-
+    
     const [estadoFilterTemplate,oficinaFilterTemplate,areaFilterTemplate]=FiltrosEntidad();
     
     const estadoBodyTemplate = (rowData) => {

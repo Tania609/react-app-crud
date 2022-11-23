@@ -56,32 +56,41 @@ import "./App.css";
 import TableVpn from "./component/TableVpn";
 import Email from './component/Email'
 import { TabView, TabPanel } from 'primereact/tabview';
-
-
+import {Routes, Route} from 'react-router-dom';
+import FsaV2 from './pages/FsaV2';
 const App = () => {
+    const tab =()=>{
+        return(
+            <div className="tabview-demo">
+                <div className="card">
+                    <h1>UTI - DATABASE</h1>
+                    <TabView className="tabview-header-icon">
+                        <TabPanel header="EMPLEADOS" rightIcon="pi pi-calendar">
+                            
+                        </TabPanel>
+                        <TabPanel header="VPN" rightIcon="pi pi-user">
+                            <div>
+                                <TableVpn></TableVpn>
+                            </div>                     
+                        </TabPanel>
+                        <TabPanel header="EMAIL" rightIcon="pi pi-cog">
+                            <div>
+                                <Email></Email>
+                            </div>
+    
+                        </TabPanel>
+                    </TabView>
+                </div>
+            </div>
+        )
+    }
   return (
     <div className="App">
-       <div className="tabview-demo">
-            <div className="card">
-                <h1>UTI - DATABASE</h1>
-                <TabView className="tabview-header-icon">
-                    <TabPanel header="EMPLEADOS" rightIcon="pi pi-calendar">
-                        
-                    </TabPanel>
-                    <TabPanel header="VPN" rightIcon="pi pi-user">
-                        <div>
-                            <TableVpn></TableVpn>
-                        </div>                     
-                    </TabPanel>
-                    <TabPanel header="EMAIL" rightIcon="pi pi-cog">
-                        <div>
-                            <Email></Email>
-                        </div>
-  
-                    </TabPanel>
-                </TabView>
-            </div>
-       </div>
+        <Routes>
+            <Route path="/" element={tab()}></Route>
+            <Route path="fsa" element={<FsaV2/>}></Route>
+        </Routes>
+       
     
       
     </div>
