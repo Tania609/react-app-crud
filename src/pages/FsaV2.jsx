@@ -18,93 +18,114 @@ const FsaV2 = () => {
     const [cargo,setCargo]=useState(null);
     const [dirIp,setDirIp]=useState(null);
     const [sustento,setSustento]=useState(null);
+    
     const [selectRegistrales,setSelectRegistral]=useState([]);
+    const [selectWeb,setSelectWeb]=useState([]);
+    const [selectAdmi,setSelectAdmi]=useState([]);
+    const [selectInfo,setSelectInfo]=useState([]);
+    const [selectAnti,setSelectAnti]=useState([]);
+
+    const listAutorizado=[
+        {name:"Jefe",key:'aut0'},
+        {name:"Documento",key:'aut1'},
+    ]
+    const [autorizado,setAutorizado]=useState([]);
+    const [selectAutorizado,setSelectAutorizado]=useState([listAutorizado[0]]);
+
     const [cities, setCities] = useState([]);
     const [empleados,empleadosCombo,oficinas,oficinasCombo,perfiles,perfilCombo,estados,estadosCombo,areas,areasCombo]=Entidades();
      
     const listRegistrales=[
-        {name:"Usuario Windows",key:'0'},
-        {name:"Consulta Registral",key:'1'},
-        {name:"Indice Verificadores",key:'2'},
-        {name:"Libro Diario",key:'3'},
-        {name:"Mesa de Partes",key:'4'},
-        {name:"RPU Gráfico",key:'5'},
-        {name:"SARP",key:'6'},
-        {name:"SCUNAC",key:'7'},
-        {name:"SEPR",key:'8'},
-        {name:"SIGESAR",key:'9'},
-        {name:"SIR",key:'10'},
-        {name:"SIR Minero",key:'11'},
-        {name:"SIR RPV",key:'12'},
-        {name:"SOU",key:'13'},
-        {name:"SPIJ",key:'14'},
-        {name:"SPR",key:'15'},
-        {name:"SPRN",key:'16'},
-        {name:"TOOLGIS",key:'17'},
+        {name:"Usuario Windows",key:'"Reg0'},
+        {name:"Consulta Registral",key:'Reg1'},
+        {name:"Indice Verificadores",key:'Reg2'},
+        {name:"Libro Diario",key:'Reg3'},
+        {name:"Mesa de Partes",key:'Reg4'},
+        {name:"RPU Gráfico",key:'Reg5'},
+        {name:"SARP",key:'Reg6'},
+        {name:"SCUNAC",key:'Reg7'},
+        {name:"SEPR",key:'Reg8'},
+        {name:"SIGESAR",key:'Reg9'},
+        {name:"SIR",key:'Reg10'},
+        {name:"SIR Minero",key:'Reg11'},
+        {name:"SIR RPV",key:'Reg12'},
+        {name:"SOU",key:'Reg13'},
+        {name:"SPIJ",key:'Reg14'},
+        {name:"SPR",key:'Reg15'},
+        {name:"SPRN",key:'Reg16'},
+        {name:"TOOLGIS",key:'Reg17'},
     ];
     const listWeb=[
-        {name:"Citrix",key:'0'},
-        {name:"Correo Institucional",key:'1'},
-        {name:"PSI",key:'2'},
-        {name:"RENIEC",key:'3'},
-        {name:"SGIT",key:'4'},
-        {name:"SPRL - Extranet",key:'5'},
+        {name:"Citrix",key:'web0'},
+        {name:"Correo Institucional",key:'web1'},
+        {name:"PSI",key:'web2'},
+        {name:"RENIEC",key:'web3'},
+        {name:"SGIT",key:'web4'},
+        {name:"SPRL - Extranet",key:'web5'},
     ];
     const listAdministrativos=[
-        {name:"Devoluciones",key:'0'},
-        {name:"Melissa",key:'1'},
-        {name:"Modulo Logistica",key:'2'},
-        {name:"SIAF",key:'3'},
-        {name:"SICA",key:'4'},
-        {name:"SIGA",key:'5'},
-        {name:"SISABA",key:'6'},
-        {name:"SISTRAM",key:'7'},
-        {name:"SUTESOR",key:'8'},
-        {name:"Registro de Visitas",key:'9'},
+        {name:"Devoluciones",key:'adm0'},
+        {name:"Melissa",key:'adm1'},
+        {name:"Modulo Logistica",key:'adm2'},
+        {name:"SIAF",key:'adm3'},
+        {name:"SICA",key:'adm4'},
+        {name:"SIGA",key:'adm5'},
+        {name:"SISABA",key:'adm6'},
+        {name:"SISTRAM",key:'adm7'},
+        {name:"SUTESOR",key:'adm8'},
+        {name:"Registro de Visitas",key:'adm9'},
     ];
     const listInformatica=[
-        {name:"Base de Datos",key:'0'},
-        {name:"KeyFile",key:'1'},
-        {name:"VMWARE",key:'2'},
-        {name:"VPN",key:'3'},
+        {name:"Base de Datos",key:'inf0'},
+        {name:"KeyFile",key:'inf1'},
+        {name:"VMWARE",key:'inf2'},
+        {name:"VPN",key:'inf3'},
     ];
     const listAntivirus=[
-        {name:"Bloqueo USB/CD",key:'0'},
-        {name:"USB (R / W)",key:'1'},
-        {name:"USB (Lectura)",key:'2'},
-        {name:"CD (R / W)",key:'3'},
-        {name:"CD (Lectura)",key:'4'},
-        {name:"Usuario Consola McAfee",key:'5'},
+        {name:"Bloqueo USB/CD",key:'ant0'},
+        {name:"USB (R / W)",key:'ant1'},
+        {name:"USB (Lectura)",key:'ant2'},
+        {name:"CD (R / W)",key:'ant3'},
+        {name:"CD (Lectura)",key:'ant4'},
+        {name:"Usuario Consola McAfee",key:'ant5'},
     ];
-   
-    const onCategoryChange = (e) => {
-        let _selectedCategories = [...selectRegistrales];
 
+    
+   
+    const change=(e,selectArray, setSelectArray)=>{
+        let _selectedCategories = [...selectArray];
         if (e.checked) {
             _selectedCategories.push(e.value);
-        }
-        else {
+        } else {
             for (let i = 0; i < _selectedCategories.length; i++) {
                 const selectedCategory = _selectedCategories[i];
-
                 if (selectedCategory.key === e.value.key) {
                     _selectedCategories.splice(i, 1);
                     break;
                 }
             }
         }
-
-        setSelectRegistral(_selectedCategories);
-    }
-    const onCityChange = (e) => {
-        let selectedCities = [...cities];
-
-        if (e.checked)
-            selectedCities.push(e.value);
-        else
-            selectedCities.splice(selectedCities.indexOf(e.value), 1);
-
-        setCities(selectedCities);
+        setSelectArray(_selectedCategories);
+    };
+    const onCategoryChange = (e, tipo) => {
+        if(tipo="registrales"){
+            change(e,selectRegistrales,setSelectRegistral);
+        }
+        if(tipo="web"){
+            change(e,selectWeb,setSelectWeb);
+        }
+        if(tipo="administrativos"){
+            change(e,selectAdmi,setSelectAdmi);
+        }
+        if(tipo="informatica"){
+            change(e,selectInfo,setSelectInfo);
+        }
+        if(tipo="antivirus"){
+            change(e,selectAnti,setSelectAnti);
+        }
+        if(tipo="autorizado"){
+            
+        }
     }
     
     return (
@@ -194,7 +215,7 @@ const FsaV2 = () => {
                         listRegistrales.map((category) => {
                             return (
                                 <div key={category.key} className="field-checkbox">
-                                    <Checkbox inputId={category.key} name="category" value={category} onChange={onCategoryChange} checked={selectRegistrales.some((item) => item.key === category.key)} />
+                                    <Checkbox inputId={category.key} name="registrales" value={category} onChange={(e)=>onCategoryChange(e,"registrales")} checked={selectRegistrales.some((item) => item.key === category.key)} />
                                     <label htmlFor={category.key}>{category.name}</label>
                                 </div>
                             )
@@ -207,7 +228,7 @@ const FsaV2 = () => {
                         listWeb.map((category) => {
                             return (
                                 <div key={category.key} className="field-checkbox">
-                                    <Checkbox inputId={category.key} name="category" value={category} onChange={onCategoryChange} checked={selectRegistrales.some((item) => item.key === category.key)} />
+                                    <Checkbox inputId={category.key} name="web" value={category} onChange={(e)=>onCategoryChange(e,"web")} checked={selectWeb.some((item) => item.key === category.key)} />
                                     <label htmlFor={category.key}>{category.name}</label>
                                 </div>
                             )
@@ -218,7 +239,7 @@ const FsaV2 = () => {
                         listAdministrativos.map((category) => {
                             return (
                                 <div key={category.key} className="field-checkbox">
-                                    <Checkbox inputId={category.key} name="category" value={category} onChange={onCategoryChange} checked={selectRegistrales.some((item) => item.key === category.key)} />
+                                    <Checkbox inputId={category.key} name="administrativos" value={category} onChange={(e)=>onCategoryChange(e,"administrativos")} checked={selectAdmi.some((item) => item.key === category.key)} />
                                     <label htmlFor={category.key}>{category.name}</label>
                                 </div>
                             )
@@ -231,7 +252,7 @@ const FsaV2 = () => {
                         listInformatica.map((category) => {
                             return (
                                 <div key={category.key} className="field-checkbox">
-                                    <Checkbox inputId={category.key} name="category" value={category} onChange={onCategoryChange} checked={selectRegistrales.some((item) => item.key === category.key)} />
+                                    <Checkbox inputId={category.key} name="informaticos" value={category} onChange={(e)=>onCategoryChange(e,"informatica")} checked={selectInfo.some((item) => item.key === category.key)} />
                                     <label htmlFor={category.key}>{category.name}</label>
                                 </div>
                             )
@@ -242,7 +263,7 @@ const FsaV2 = () => {
                         listAntivirus.map((category) => {
                             return (
                                 <div key={category.key} className="field-checkbox">
-                                    <Checkbox inputId={category.key} name="category" value={category} onChange={onCategoryChange} checked={selectRegistrales.some((item) => item.key === category.key)} />
+                                    <Checkbox inputId={category.key} name="antivirus" value={category} onChange={(e)=>onCategoryChange(e,"antivirus")} checked={selectAnti.some((item) => item.key === category.key)} />
                                     <label htmlFor={category.key}>{category.name}</label>
                                 </div>
                             )
@@ -264,15 +285,15 @@ const FsaV2 = () => {
                     <InputTextarea className="col-12" rows={3} value={sustento} autoResize />
                 </div>
                 <div className="col-12 md:col-6 ml-8">
-                    <label className='block mb-2' htmlFor="cargo">AUTORIZADO POR:</label>
-                    <div className="field-checkbox inline">
-                        <Checkbox inputId="city1" name="city" value="Chicago" onChange={onCityChange} checked={cities.indexOf('Chicago') !== -1} />
-                        <label htmlFor="city1">Jefe</label>
-                    </div>
-                    <div className="field-checkbox inline">
-                        <Checkbox inputId="city2" name="city" value="Los Angeles" onChange={onCityChange} checked={cities.indexOf('Los Angeles') !== -1} />
-                        <label htmlFor="city2">Documento</label>
-                    </div>
+                    {listAutorizado.map((category) => {
+                        return (
+                            <div key={category.key} className="field-checkbox">
+                                <Checkbox inputId={category.key} name="autorizado" value={category} onChange={(e)=>onCategoryChange(e,"autorizado")} checked={selectAutorizado.some((item) => item.key === category.key)} />
+                                <label htmlFor={category.key}>{category.name}</label>
+                            </div>
+                        )
+                        })
+                    }
                 </div>
             </div>
         </div>       
