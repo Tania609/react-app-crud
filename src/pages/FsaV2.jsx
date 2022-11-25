@@ -8,6 +8,7 @@ import { SelectButton } from 'primereact/selectbutton';
 import { Button } from 'primereact/button';
 import Entidades from '../services/Entidades';
 import jsPDF from "jspdf";
+import FsaV2Report from "../reports/FsaV2Report";
 
 const FsaV2 = () => {
     const [dni,setDni]=useState("");
@@ -124,6 +125,7 @@ const FsaV2 = () => {
         if(tipo="autorizado"){
             
         }
+        console.log(selectRegistrales)
     }
     const autorizadoView=()=>{
         if(autorizado==="Jefe"){
@@ -154,10 +156,15 @@ const FsaV2 = () => {
         var doc=new jsPDF('p','pt');
         
         doc.text(20,20,"Title");
-        doc.text(100,200,"prueb")
+        doc.text(100,200,"prueb");
+        doc.cell(80,6,"ZONA REGISTRAL N° X - SEDE CUSCO",0,1,"C");
         doc.save("FSA.pdf")
+    };
+    const FsaV2Report_=()=>{
+        console.log(nombre);
+        return (FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
+            selectRegistrales,selectWeb,selectAdmi,selectInfo,selectAnti,autorizadoPor}));
     }
-    
     return (
     <div className='card'>
         <h1>SOLICITUD DE ACCESOS</h1>
@@ -170,11 +177,12 @@ const FsaV2 = () => {
             </Divider>
             <div className="grid ml-4 mt-4">
                 <div className='col-12 md:col-4 grid'>     
-                        <label className='col-12 md:col-3 text-left' htmlFor="nombre">NOMBRE:</label>
+                        <label className='col-12 md:col-3 text-left' htmlFor="nombre">NOMBRES:</label>
                         <InputText className='col-12 md:col-7 ' 
                             id="nombre"
-                            value={nombre}
+                            value={nombre || ""}
                             placeholder="Ingrese nombre"
+                            onChange={(e) => setNombre(e.target.value)}
                         />
                 </div>
                 <div className='col-12 md:col-4 grid'>     
@@ -183,6 +191,7 @@ const FsaV2 = () => {
                             id="apePaterno"
                             value={apePaterno}
                             placeholder="Ingrese apellido paterno"
+                            onChange={(e) => setApePaterno(e.target.value)}
                         />
                 </div>
                 <div className='col-12 md:col-4 grid'>     
@@ -190,7 +199,8 @@ const FsaV2 = () => {
                     <InputText className='col-12 md:col-7' 
                         id="apeMaterno"
                         value={apeMaterno}
-                        placeholder="IIngrese apellido materno"
+                        placeholder="Ingrese apellido materno"
+                        onChange={(e) => setApeMaterno(e.target.value)}
                     />
                 </div>
             </div>
@@ -201,6 +211,7 @@ const FsaV2 = () => {
                             id="Correo"
                             value={correo}
                             placeholder="Ingrese correo"
+                            onChange={(e) => setCorreo(e.target.value)}
                         />
                 </div>
                 <div className='col-12 md:col-4 grid'>     
@@ -209,6 +220,7 @@ const FsaV2 = () => {
                         id="dirIp"
                         value={dirIp}
                         placeholder="Ingrese direccion ip"
+                        onChange={(e) => setDirIp(e.target.value)}
                     />
                 </div>
                 <div className='col-12 md:col-4 grid'>     
@@ -324,7 +336,8 @@ const FsaV2 = () => {
                     </div>      
                 </div>
             </div>
-            <Button className="p-button-success" label="Generar PDF" onClick={jsPdfGenerator()}/>
+            <Button className="p-button-success" label="Generar PDF" />
+            {FsaV2Report_()}
         </div>   
     </div>
   )
