@@ -4,35 +4,34 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Checkbox } from 'primereact/checkbox';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { SelectButton } from 'primereact/selectbutton';
+import { Button } from 'primereact/button';
 import Entidades from '../services/Entidades';
+import jsPDF from "jspdf";
+import FsaV2Report from "../reports/FsaV2Report";
 
 const FsaV2 = () => {
-    const [dni,setDni]=useState(null);
-    const [nombre,setNombre]=useState(null);
-    const [apePaterno,setApePaterno]=useState(null);
-    const [apeMaterno,setApeMaterno]=useState(null);
-    const [correo,setCorreo]=useState(null);
-    const [oficina,setOficina]=useState(null);
-    const [unidad,setUnidad]=useState(null);
-    const [area,setArea]=useState(null);
-    const [cargo,setCargo]=useState(null);
-    const [dirIp,setDirIp]=useState(null);
-    const [sustento,setSustento]=useState(null);
+    const [dni,setDni]=useState("");
+    const [nombre,setNombre]=useState("");
+    const [apePaterno,setApePaterno]=useState("");
+    const [apeMaterno,setApeMaterno]=useState("");
+    const [correo,setCorreo]=useState("");
+    const [oficina,setOficina]=useState("");
+    const [unidad,setUnidad]=useState("");
+    const [area,setArea]=useState("");
+    const [cargo,setCargo]=useState("");
+    const [dirIp,setDirIp]=useState("");
+    const [sustento,setSustento]=useState("");
     
     const [selectRegistrales,setSelectRegistral]=useState([]);
     const [selectWeb,setSelectWeb]=useState([]);
     const [selectAdmi,setSelectAdmi]=useState([]);
     const [selectInfo,setSelectInfo]=useState([]);
     const [selectAnti,setSelectAnti]=useState([]);
+    const [autorizadoPor,setAutorizadoPor]=useState("");
 
-    const listAutorizado=[
-        {name:"Jefe",key:'aut0'},
-        {name:"Documento",key:'aut1'},
-    ]
-    const [autorizado,setAutorizado]=useState([]);
-    const [selectAutorizado,setSelectAutorizado]=useState([listAutorizado[0]]);
+    const [autorizado, setAutorizado]=useState("Jefe");
 
-    const [cities, setCities] = useState([]);
     const [empleados,empleadosCombo,oficinas,oficinasCombo,perfiles,perfilCombo,estados,estadosCombo,areas,areasCombo]=Entidades();
      
     const listRegistrales=[
@@ -89,7 +88,7 @@ const FsaV2 = () => {
         {name:"CD (Lectura)",key:'ant4'},
         {name:"Usuario Consola McAfee",key:'ant5'},
     ];
-
+    const listAutorizado=['Jefe','Documento']
     
    
     const change=(e,selectArray, setSelectArray)=>{
@@ -126,8 +125,46 @@ const FsaV2 = () => {
         if(tipo="autorizado"){
             
         }
+        console.log(selectRegistrales)
     }
-    
+    const autorizadoView=()=>{
+        if(autorizado==="Jefe"){
+            return(
+                <div key="sdd">
+                    <label className='col-12 md:col-3 text-left' htmlFor="jefe">Jefe de la Unidad/Jefe Inmediato:</label>
+                    <InputText className='col-12 md:col-7' 
+                        id="jefe"
+                        value={autorizadoPor}
+                        placeholder="Ingrese Nombre del jefe"
+                    />    
+                </div>       
+            );
+        }else{
+            return(
+                <div key="dfsd">
+                    <label className='col-12 md:col-3 text-left' htmlFor="documento">Documento:</label>
+                    <InputText className='col-12 md:col-7' 
+                        id="documento"
+                        value={autorizadoPor}
+                        placeholder="Documento que sustenta la autorizacion"
+                    />
+                </div>
+            );
+        }
+    };
+    const jsPdfGenerator=()=>{
+        var doc=new jsPDF('p','pt');
+        
+        doc.text(20,20,"Title");
+        doc.text(100,200,"prueb");
+        doc.cell(80,6,"ZONA REGISTRAL N° X - SEDE CUSCO",0,1,"C");
+        doc.save("FSA.pdf")
+    };
+    const FsaV2Report_=()=>{
+        console.log(nombre);
+        return (FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
+            selectRegistrales,selectWeb,selectAdmi,selectInfo,selectAnti,autorizadoPor}));
+    }
     return (
     <div className='card'>
         <h1>SOLICITUD DE ACCESOS</h1>
@@ -140,11 +177,12 @@ const FsaV2 = () => {
             </Divider>
             <div className="grid ml-4 mt-4">
                 <div className='col-12 md:col-4 grid'>     
-                        <label className='col-12 md:col-3 text-left' htmlFor="nombre">NOMBRE:</label>
+                        <label className='col-12 md:col-3 text-left' htmlFor="nombre">NOMBRES:</label>
                         <InputText className='col-12 md:col-7 ' 
                             id="nombre"
-                            value={nombre}
-                            placeholder="Nombre"
+                            value={nombre || ""}
+                            placeholder="Ingrese nombre"
+                            onChange={(e) => setNombre(e.target.value)}
                         />
                 </div>
                 <div className='col-12 md:col-4 grid'>     
@@ -152,7 +190,8 @@ const FsaV2 = () => {
                         <InputText className='col-12 md:col-7' 
                             id="apePaterno"
                             value={apePaterno}
-                            placeholder="Apellido paterno"
+                            placeholder="Ingrese apellido paterno"
+                            onChange={(e) => setApePaterno(e.target.value)}
                         />
                 </div>
                 <div className='col-12 md:col-4 grid'>     
@@ -160,7 +199,8 @@ const FsaV2 = () => {
                     <InputText className='col-12 md:col-7' 
                         id="apeMaterno"
                         value={apeMaterno}
-                        placeholder="Apellido materno"
+                        placeholder="Ingrese apellido materno"
+                        onChange={(e) => setApeMaterno(e.target.value)}
                     />
                 </div>
             </div>
@@ -170,7 +210,8 @@ const FsaV2 = () => {
                         <InputText className='col-12 md:col-7' 
                             id="Correo"
                             value={correo}
-                            placeholder="Correo"
+                            placeholder="Ingrese correo"
+                            onChange={(e) => setCorreo(e.target.value)}
                         />
                 </div>
                 <div className='col-12 md:col-4 grid'>     
@@ -178,26 +219,27 @@ const FsaV2 = () => {
                     <InputText className='col-12 md:col-7' 
                         id="dirIp"
                         value={dirIp}
-                        placeholder="Direccion ip"
+                        placeholder="Ingrese direccion ip"
+                        onChange={(e) => setDirIp(e.target.value)}
                     />
                 </div>
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left' htmlFor="oficina">OFICINA:</label>
-                    <Dropdown id="oficina" className="col-12 md:col-7 text-left"  value={oficina} options={oficinas} placeholder="Oficina" filter/>
+                    <Dropdown id="oficina" className="col-12 md:col-7 text-left"  value={oficina} options={oficinas} placeholder="Ingrese oficina" filter/>
                 </div>
             </div>
             <div className="grid ml-4 mt-4">
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left' htmlFor="unidad">UNIDAD:</label>
-                    <Dropdown id="unidad" className="col-12 md:col-7 text-left"  value={area} options={areas} placeholder="Oficina" filter/>
+                    <Dropdown id="unidad" className="col-12 md:col-7 text-left"  value={area} options={areas} placeholder="Ingrese unidad" filter/>
                 </div>
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left' htmlFor="area">AREA:</label>
-                    <Dropdown id="area" className="col-12 md:col-7 text-left"  value={area} options={areas} placeholder="Area" filter />
+                    <Dropdown id="area" className="col-12 md:col-7 text-left"  value={area} options={areas} placeholder="Ingrese area" filter />
                 </div>
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left' htmlFor="cargo">CARGO:</label>
-                    <Dropdown id="cargo" className="col-12 md:col-7 text-left"  value={cargo} options={perfiles} placeholder="Cargo" filter/>
+                    <Dropdown id="cargo" className="col-12 md:col-7 text-left"  value={cargo} options={perfiles} placeholder="Ingrese cargo" filter/>
                 </div>
             </div>
         </div>
@@ -281,22 +323,22 @@ const FsaV2 = () => {
             </Divider>
             <div className="grid ml-4  text-left">
                 <div className="col-12 md:col-4">
-                    <label className='block mb-2' htmlFor="cargo">SUSTENTO:</label>
-                    <InputTextarea className="col-12" rows={3} value={sustento} autoResize />
+                    <label className='block mb-2' htmlFor="sustento">SUSTENTO:</label>
+                    <InputTextarea id="sustento" className="col-12" rows={2} value={sustento} autoResize />
                 </div>
-                <div className="col-12 md:col-6 ml-8">
-                    {listAutorizado.map((category) => {
-                        return (
-                            <div key={category.key} className="field-checkbox">
-                                <Checkbox inputId={category.key} name="autorizado" value={category} onChange={(e)=>onCategoryChange(e,"autorizado")} checked={selectAutorizado.some((item) => item.key === category.key)} />
-                                <label htmlFor={category.key}>{category.name}</label>
-                            </div>
-                        )
-                        })
-                    }
+                <div className="col-12 md:col-8">
+                    <label className='block mb-2' htmlFor="autorizado">AUTORIZADO POR:</label>
+                    <div className="grid">
+                        <SelectButton id="autorizado" className="mb-2 col-12 md:col-3" value={autorizado} options={listAutorizado} onChange={(e) => setAutorizado(e.value)} />
+                        <div className="col-12 md:col-9">
+                            {autorizadoView()}
+                        </div>
+                    </div>      
                 </div>
             </div>
-        </div>       
+            <Button className="p-button-success" label="Generar PDF" />
+            {FsaV2Report_()}
+        </div>   
     </div>
   )
 }
