@@ -58,6 +58,7 @@ import Email from './component/Email'
 import { TabView, TabPanel } from 'primereact/tabview';
 import {Routes, Route} from 'react-router-dom';
 import FsaV2 from './pages/FsaV2';
+import Pdf from './pages/Pdf';
 const App = () => {
     const tab =()=>{
         return(
@@ -89,7 +90,7 @@ const App = () => {
         <Routes>
             {//<Route path="/" element={tab()}></Route>
             }
-            <Route path="fsa" element={<FsaV2/>}></Route>
+            <Route path="fsa" element={<Pdf/>}></Route>
         </Routes>
        
     
