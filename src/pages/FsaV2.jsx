@@ -23,11 +23,7 @@ const FsaV2 = () => {
     const [dirIp,setDirIp]=useState("");
     const [sustento,setSustento]=useState("");
     
-    const [selectRegistrales,setSelectRegistral]=useState([]);
-    const [selectWeb,setSelectWeb]=useState([]);
-    const [selectAdmi,setSelectAdmi]=useState([]);
-    const [selectInfo,setSelectInfo]=useState([]);
-    const [selectAnti,setSelectAnti]=useState([]);
+    const [selectSistemas,setSelectSistemas]=useState([]);
     const [autorizadoPor,setAutorizadoPor]=useState("");
 
     const [autorizado, setAutorizado]=useState("Jefe");
@@ -90,9 +86,8 @@ const FsaV2 = () => {
     ];
     const listAutorizado=['Jefe','Documento']
     
-   
-    const change=(e,selectArray, setSelectArray)=>{
-        let _selectedCategories = [...selectArray];
+    const onCategoryChange = (e) => {
+        let _selectedCategories = [...selectSistemas];
         if (e.checked) {
             _selectedCategories.push(e.value);
         } else {
@@ -104,28 +99,7 @@ const FsaV2 = () => {
                 }
             }
         }
-        setSelectArray(_selectedCategories);
-    };
-    const onCategoryChange = (e, tipo) => {
-        if(tipo="registrales"){
-            change(e,selectRegistrales,setSelectRegistral);
-        }
-        if(tipo="web"){
-            change(e,selectWeb,setSelectWeb);
-        }
-        if(tipo="administrativos"){
-            change(e,selectAdmi,setSelectAdmi);
-        }
-        if(tipo="informatica"){
-            change(e,selectInfo,setSelectInfo);
-        }
-        if(tipo="antivirus"){
-            change(e,selectAnti,setSelectAnti);
-        }
-        if(tipo="autorizado"){
-            
-        }
-        console.log(selectRegistrales)
+        setSelectSistemas(_selectedCategories);
     }
     const autorizadoView=()=>{
         if(autorizado==="Jefe"){
@@ -163,7 +137,7 @@ const FsaV2 = () => {
     const FsaV2Report_=()=>{
         console.log(nombre);
         return (FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
-            selectRegistrales,selectWeb,selectAdmi,selectInfo,selectAnti,autorizadoPor}));
+            selectSistemas,autorizadoPor}));
     }
     return (
     <div className='card'>
@@ -180,7 +154,7 @@ const FsaV2 = () => {
                         <label className='col-12 md:col-3 text-left' htmlFor="nombre">NOMBRES:</label>
                         <InputText className='col-12 md:col-7 ' 
                             id="nombre"
-                            value={nombre || ""}
+                            value={nombre}
                             placeholder="Ingrese nombre"
                             onChange={(e) => setNombre(e.target.value)}
                         />
@@ -257,7 +231,7 @@ const FsaV2 = () => {
                         listRegistrales.map((category) => {
                             return (
                                 <div key={category.key} className="field-checkbox">
-                                    <Checkbox inputId={category.key} name="registrales" value={category} onChange={(e)=>onCategoryChange(e,"registrales")} checked={selectRegistrales.some((item) => item.key === category.key)} />
+                                    <Checkbox inputId={category.key} name="registrales" value={category} onChange={(e)=>onCategoryChange(e)} checked={selectSistemas.some((item) => item.key === category.key)} />
                                     <label htmlFor={category.key}>{category.name}</label>
                                 </div>
                             )
@@ -270,7 +244,7 @@ const FsaV2 = () => {
                         listWeb.map((category) => {
                             return (
                                 <div key={category.key} className="field-checkbox">
-                                    <Checkbox inputId={category.key} name="web" value={category} onChange={(e)=>onCategoryChange(e,"web")} checked={selectWeb.some((item) => item.key === category.key)} />
+                                    <Checkbox inputId={category.key} name="web" value={category} onChange={(e)=>onCategoryChange(e)} checked={selectSistemas.some((item) => item.key === category.key)} />
                                     <label htmlFor={category.key}>{category.name}</label>
                                 </div>
                             )
@@ -281,7 +255,7 @@ const FsaV2 = () => {
                         listAdministrativos.map((category) => {
                             return (
                                 <div key={category.key} className="field-checkbox">
-                                    <Checkbox inputId={category.key} name="administrativos" value={category} onChange={(e)=>onCategoryChange(e,"administrativos")} checked={selectAdmi.some((item) => item.key === category.key)} />
+                                    <Checkbox inputId={category.key} name="administrativos" value={category} onChange={(e)=>onCategoryChange(e)} checked={selectSistemas.some((item) => item.key === category.key)} />
                                     <label htmlFor={category.key}>{category.name}</label>
                                 </div>
                             )
@@ -294,7 +268,7 @@ const FsaV2 = () => {
                         listInformatica.map((category) => {
                             return (
                                 <div key={category.key} className="field-checkbox">
-                                    <Checkbox inputId={category.key} name="informaticos" value={category} onChange={(e)=>onCategoryChange(e,"informatica")} checked={selectInfo.some((item) => item.key === category.key)} />
+                                    <Checkbox inputId={category.key} name="informaticos" value={category} onChange={(e)=>onCategoryChange(e)} checked={selectSistemas.some((item) => item.key === category.key)} />
                                     <label htmlFor={category.key}>{category.name}</label>
                                 </div>
                             )
@@ -305,7 +279,7 @@ const FsaV2 = () => {
                         listAntivirus.map((category) => {
                             return (
                                 <div key={category.key} className="field-checkbox">
-                                    <Checkbox inputId={category.key} name="antivirus" value={category} onChange={(e)=>onCategoryChange(e,"antivirus")} checked={selectAnti.some((item) => item.key === category.key)} />
+                                    <Checkbox inputId={category.key} name="antivirus" value={category} onChange={(e)=>onCategoryChange(e)} checked={selectSistemas.some((item) => item.key === category.key)} />
                                     <label htmlFor={category.key}>{category.name}</label>
                                 </div>
                             )
@@ -324,7 +298,7 @@ const FsaV2 = () => {
             <div className="grid ml-4  text-left">
                 <div className="col-12 md:col-4">
                     <label className='block mb-2' htmlFor="sustento">SUSTENTO:</label>
-                    <InputTextarea id="sustento" className="col-12" rows={2} value={sustento} autoResize />
+                    <InputTextarea id="sustento" className="col-12" rows={2} value={sustento} onChange={(e) => setSustento(e.target.value)} autoResize />
                 </div>
                 <div className="col-12 md:col-8">
                     <label className='block mb-2' htmlFor="autorizado">AUTORIZADO POR:</label>
