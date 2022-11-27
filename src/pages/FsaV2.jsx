@@ -28,6 +28,14 @@ const FsaV2 = () => {
     const [autorizadoPor,setAutorizadoPor]=useState("");
 
     const [autorizado, setAutorizado]=useState("Jefe");
+    const [psi,setPsi]=useState(false);
+
+    const [selectNotarios,setSelectNotarios]=useState([]);
+    const [selectEmpresas,setSelectEmpresas]=useState([]);
+    const [selectSeguridad,setSelectSeguridad]=useState([]);
+    const [selectVerificadores,setSelectVerificadores]=useState([]);
+    const [selectEntidades,setSelectEntidades]=useState([]);
+    const [selectPide,setSelectPide]=useState([]);
 
     const [submitted,setSubmitted]=useState(false);
 
@@ -88,9 +96,55 @@ const FsaV2 = () => {
         {name:"Usuario Consola McAfee",key:'ant5'},
     ];
     const listAutorizado=['Jefe','Documento']
-    
+    const mNotarios=[
+        {name:'Consulta',key:'not0'},
+        {name:'Asistente GR',key:'not1'},
+    ];
+    const mEmpresas=[
+        {name:'Consulta',key:'emp0'},
+        {name:'Asistente GR',key:'emp1'},
+    ];
+    const mSeguridad=[
+        {name:'Administración',key:'seg0'},
+    ];
+    const mVerificadores=[
+        {name:'Consulta',key:'ver0'},
+        {name:'Administración',key:'ver1'},
+        {name:'Registrador',key:'ver2'},
+    ];
+    const mEntidades=[
+        {name:'Consulta',key:'ent0'},
+        {name:'Administración',key:'ent1'},
+    ];
+    const mPide=[
+        {name:'RENIEC',key:'pid0'},
+        {name:'FMV',key:'pid1'},
+    ];
     const onCategoryChange = (e) => {
+        if(e.value.name==="PSI"){
+            document.getElementById("psi").className="visible"
+            setPsi(true);
+        }
         let _selectedCategories = [...selectSistemas];
+        if (e.checked) {
+            _selectedCategories.push(e.value);
+        } else {
+            if(e.value.name==="PSI"){
+                document.getElementById("psi").className="hidden"
+                setPsi(false);
+            }
+            for (let i = 0; i < _selectedCategories.length; i++) {
+                const selectedCategory = _selectedCategories[i];
+                if (selectedCategory.key === e.value.key) {
+                    _selectedCategories.splice(i, 1);
+                    break;
+                }
+            }
+        }
+        setSelectSistemas(_selectedCategories);
+    };
+    const categotyPsi=(arraySelect,setArraySelect,e)=>{
+        let _selectedCategories = [...arraySelect];
         if (e.checked) {
             _selectedCategories.push(e.value);
         } else {
@@ -102,13 +156,33 @@ const FsaV2 = () => {
                 }
             }
         }
-        setSelectSistemas(_selectedCategories);
-    }
+        setArraySelect(_selectedCategories);
+    };
+    const onChangePsi = (e,tipo) => {
+        if(tipo==="notarios"){
+            categotyPsi(selectNotarios,setSelectNotarios,e);
+        }
+        if(tipo==="empresas"){
+            categotyPsi(selectEmpresas,setSelectEmpresas,e);
+        }
+        if(tipo==="seguridad"){
+            categotyPsi(selectSeguridad,setSelectSeguridad,e);
+        }
+        if(tipo==="verificadores"){
+            categotyPsi(selectVerificadores,setSelectVerificadores,e);
+        }
+        if(tipo==="entidades"){
+            categotyPsi(selectEntidades,setSelectEntidades,e);
+        }
+        if(tipo==="pide"){
+            categotyPsi(selectPide,setSelectPide,e);
+        }
+    };
     const autorizadoView=()=>{
         if(autorizado==="Jefe"){
             return(
                 <div key="sdd">
-                    <label className='col-12 md:col-3 text-left' htmlFor="jefe">Jefe de la Unidad/Jefe Inmediato:</label>
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="jefe">Jefe de la Unidad/Jefe Inmediato:</label>
                     <InputText className='col-12 md:col-7' 
                         id="jefe"
                         value={autorizadoPor}
@@ -120,7 +194,7 @@ const FsaV2 = () => {
         }else{
             return(
                 <div key="dfsd">
-                    <label className='col-12 md:col-3 text-left' htmlFor="documento">Documento:</label>
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="documento">Documento:</label>
                     <InputText className='col-12 md:col-7' 
                         id="documento"
                         value={autorizadoPor}
@@ -131,16 +205,8 @@ const FsaV2 = () => {
             );
         }
     };
-    const FsaV2Report_=()=>{
+    const prueba=()=>{
         setSubmitted(true)
-        if(nombre=!""){
-            return(
-            <PDFDownloadLink document={FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
-                selectSistemas,autorizadoPor,autorizado})} fileName={"FSA - "+nombre+" "+apePaterno+" "+apeMaterno}>
-                {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Download now!')}
-            </PDFDownloadLink>
-            )
-        }
     };
     return (
     <div className='card'>
@@ -152,10 +218,22 @@ const FsaV2 = () => {
                     <b>DATOS PERSONALES</b>
                 </div>
             </Divider>
-            <div className="grid ml-4 mt-4">
-                <div className='col-12 md:col-4 grid'>     
-                    <label className='col-12 md:col-3 text-left' htmlFor="nombre">NOMBRES:</label>
-                    <InputText className={classNames({"p-invalid": submitted&& nombre===""},'col-12 md:col-8')}
+            <div className="grid ml-4 mt-4 text-sm">
+                <div className='col-12 md:col-4 grid '>     
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="dni">DNI :</label>
+                    <InputText className={classNames({"p-invalid": submitted&& dni===""},'col-12 md:col-8')}
+                        id="dni"
+                        value={dni}
+                        placeholder="Ingrese número DNI"
+                        onChange={(e) => setDni(e.target.value)}
+                        autoFocus
+                    />
+                    {submitted && dni==="" &&(
+                    <small className="ml-2 p-error col-12 p-0">Falta DNI</small>)}  
+                </div>
+                <div className='col-12 md:col-4 grid '>     
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="nombre">Nombres :</label>
+                    <InputText className={classNames({"p-invalid": submitted&& nombre===""},'col-12 md:col-8 pt-1')}
                         id="nombre"
                         value={nombre}
                         placeholder="Ingrese nombre"
@@ -163,84 +241,92 @@ const FsaV2 = () => {
                         autoFocus
                     />
                     {submitted && nombre==="" &&(
-                    <small className="ml-2 p-error col-12 ">Falta nombre</small>)}  
+                    <small className="ml-2 p-error col-12 p-0">Falta nombre</small>)}  
                 </div>
-                <div className='col-12 md:col-4 grid'>     
-                    <label className='col-12 md:col-3 text-left' htmlFor="apePaterno">APELLIDO PATERNO:</label>
+                <div className='col-12 md:col-4 grid '>     
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="apePaterno">Apellido paterno :</label>
                     <InputText className={classNames({"p-invalid": submitted&& apePaterno===""},'col-12 md:col-8')}
                         id="apePaterno"
                         value={apePaterno}
                         placeholder="Ingrese apellido paterno"
                         onChange={(e) => setApePaterno(e.target.value)}
+                        autoFocus
                     />
                     {submitted && apePaterno==="" &&(
-                    <small className="ml-2 p-error col-12 ">Falta apellido paterno</small>)}  
+                    <small className="ml-2 p-error col-12 p-0">Falta apellido paterno</small>)}  
                 </div>
+            </div>
+            <div className="grid ml-4 mt-4 text-sm">
                 <div className='col-12 md:col-4 grid'>     
-                    <label className='col-12 md:col-3 text-left' htmlFor="apeMaterno">APELLIDO MATERNO:</label>
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="apeMaterno">Apellido materno :</label>
                     <InputText className={classNames({"p-invalid": submitted&& apeMaterno===""},'col-12 md:col-8')}
                         id="apeMaterno"
                         value={apeMaterno}
                         placeholder="Ingrese apellido materno"
                         onChange={(e) => setApeMaterno(e.target.value)}
+                        autoFocus
                     />
                     {submitted && apeMaterno==="" &&(
-                    <small className="ml-2 p-error col-12 ">Falta apellido materno</small>)}  
+                    <small className="ml-2 p-error col-12 p-0">Falta apellido materno</small>)}  
                 </div>
-            </div>
-            <div className="grid ml-4 mt-4">
                 <div className='col-12 md:col-4 grid'>     
-                    <label className='col-12 md:col-3 text-left' htmlFor="Correo">CORREO ELECTRONICO:</label>
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="Correo">Correo eletrónico :</label>
                     <InputText className='col-12 md:col-8' 
                         id="Correo"
                         value={correo}
                         placeholder="Ingrese correo"
                         onChange={(e) => setCorreo(e.target.value)}
+                        autoFocus
                     />
                 </div>
                 <div className='col-12 md:col-4 grid'>     
-                    <label className='col-12 md:col-3 text-left' htmlFor="dirIp">DIRECCION IP:</label>
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="dirIp">IP :</label>
                     <InputText className='col-12 md:col-8' 
                         id="dirIp"
                         value={dirIp}
-                        placeholder="Ingrese direccion ip"
+                        placeholder="Ingrese dirección ip"
                         onChange={(e) => setDirIp(e.target.value)}
+                        autoFocus
                     />
                 </div>
+            </div>
+            <div className="grid ml-4 mt-4 text-sm">
                 <div className='col-12 md:col-4 grid'>     
-                    <label className='col-12 md:col-3 text-left' htmlFor="oficina">OFICINA:</label>
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="oficina">Oficina :</label>
                     <Dropdown id="oficina" className="col-12 md:col-8 text-left"  value={oficina} options={oficinas} placeholder="Ingrese oficina" filter/>
                 </div>
-            </div>
-            <div className="grid ml-4 mt-4">
                 <div className='col-12 md:col-4 grid'>     
-                    <label className='col-12 md:col-3 text-left' htmlFor="unidad">UNIDAD:</label>
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="unidad">Unidad :</label>
                     <Dropdown id="unidad" className="col-12 md:col-8 text-left"  value={area} options={areas} placeholder="Ingrese unidad" filter/>
                 </div>
                 <div className='col-12 md:col-4 grid'>     
-                    <label className='col-12 md:col-3 text-left' htmlFor="area">AREA:</label>
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="area">Área :</label>
                     <Dropdown id="area" className="col-12 md:col-8 text-left"  value={area} options={areas} placeholder="Ingrese area" filter />
                 </div>
+            </div>
+            <div className="grid ml-4 mt-4 text-sm">
                 <div className='col-12 md:col-4 grid'>     
-                    <label className='col-12 md:col-3 text-left' htmlFor="cargo">CARGO:</label>
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="cargo">Cargo :</label>
                     <Dropdown id="cargo" className="col-12 md:col-8 text-left"  value={cargo} options={perfiles} placeholder="Ingrese cargo" filter/>
                 </div>
+                
+                
             </div>
         </div>
         <div>
             <Divider align="left">
                 <div className="inline-flex align-items-center">
-                    <i className="pi pi-user mr-2"></i>
+                    <i className="pi pi-desktop mr-2"></i>
                     <b>SISTEMAS</b>
                 </div>
             </Divider>
-            <div className="grid ml-4">
+            <div className="grid ml-4 text-sm">
                 <div className="field-checkbox block col-12 md:col-4  text-left">
-                    <h4>Sistemas Registrales</h4>
+                    <p className="font-semibold">Sistemas Registrales</p>
                     {
                         listRegistrales.map((category) => {
                             return (
-                                <div key={category.key} className="field-checkbox">
+                                <div key={category.key} className="field-checkbox ">
                                     <Checkbox inputId={category.key} name="registrales" value={category} onChange={(e)=>onCategoryChange(e)} checked={selectSistemas.some((item) => item.key === category.key)} />
                                     <label htmlFor={category.key}>{category.name}</label>
                                 </div>
@@ -249,7 +335,7 @@ const FsaV2 = () => {
                     }
                 </div>
                 <div className="field-checkbox block col-12 md:col-4  text-left">
-                    <h4>Sistemas Web</h4>
+                    <p className="font-semibold">Sistemas Web</p>
                     {
                         listWeb.map((category) => {
                             return (
@@ -260,7 +346,7 @@ const FsaV2 = () => {
                             )
                         })
                     }
-                    <h4 className="mt-5">Sistemas Administrativos</h4>
+                    <p className="mt-5 font-semibold">Sistemas Administrativos</p>
                     {
                         listAdministrativos.map((category) => {
                             return (
@@ -273,7 +359,7 @@ const FsaV2 = () => {
                     }
                 </div>
                 <div className="field-checkbox block col-12 md:col-4  text-left">
-                    <h4>Informática/Otros</h4>
+                    <p className="font-semibold">Informática/Otros</p>
                     {
                         listInformatica.map((category) => {
                             return (
@@ -284,7 +370,7 @@ const FsaV2 = () => {
                             )
                         })
                     }
-                    <h4 className="mt-5">Antivirus McAfee</h4>
+                    <p className="mt-5 font-semibold">Antivirus McAfee</p>
                     {
                         listAntivirus.map((category) => {
                             return (
@@ -297,34 +383,104 @@ const FsaV2 = () => {
                     }
                 </div>
             </div>
+            <div id="psi"className="hidden">
+                <p className="font-semibold text-left ml-5 mt-0 pt-0">PSI</p>
+                <div className="grid text-sm ml-4">
+                    <div className="col-12 md:col-2">
+                        <p className=" font-semibold text-left">Módulo de Notarios</p>
+                        {mNotarios.map((category) => {
+                            return (
+                                <div key={category.key} className="field-checkbox ">
+                                    <Checkbox inputId={category.key} name="notarios" value={category} onChange={(e)=>onChangePsi(e,'notarios')} checked={selectNotarios.some((item) => item.key === category.key)} />
+                                    <label htmlFor={category.key}>{category.name}</label>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div className="col-12 md:col-2">
+                        <p className=" font-semibold text-left">Módulo de Empresas</p>
+                        {mEmpresas.map((category) => {
+                            return (
+                                <div key={category.key} className="field-checkbox ">
+                                    <Checkbox inputId={category.key} name="empresas" value={category} onChange={(e)=>onChangePsi(e,'empresas')} checked={selectEmpresas.some((item) => item.key === category.key)} />
+                                    <label htmlFor={category.key}>{category.name}</label>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div className="col-12 md:col-2">
+                        <p className=" font-semibold text-left">Módulo Seguridad</p>
+                        {mSeguridad.map((category) => {
+                            return (
+                                <div key={category.key} className="field-checkbox ">
+                                    <Checkbox inputId={category.key} name="seguridad" value={category} onChange={(e)=>onChangePsi(e,'seguridad')} checked={selectSeguridad.some((item) => item.key === category.key)} />
+                                    <label htmlFor={category.key}>{category.name}</label>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div className="col-12 md:col-2">
+                        <p className=" font-semibold text-left">Módulo de Verificadores</p>
+                        {mVerificadores.map((category) => {
+                            return (
+                                <div key={category.key} className="field-checkbox ">
+                                    <Checkbox inputId={category.key} name="verificadores" value={category} onChange={(e)=>onChangePsi(e,'verificadores')} checked={selectVerificadores.some((item) => item.key === category.key)} />
+                                    <label htmlFor={category.key}>{category.name}</label>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div className="col-12 md:col-2">
+                        <p className=" font-semibold text-left">Módulo de Entidades</p>
+                        {mEntidades.map((category) => {
+                            return (
+                                <div key={category.key} className="field-checkbox ">
+                                    <Checkbox inputId={category.key} name="entidades" value={category} onChange={(e)=>onChangePsi(e,'entidades')} checked={selectEntidades.some((item) => item.key === category.key)} />
+                                    <label htmlFor={category.key}>{category.name}</label>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div className="col-12 md:col-2">
+                        <p className=" font-semibold text-left">Módulo PIDE</p>
+                        {mPide.map((category) => {
+                            return (
+                                <div key={category.key} className="field-checkbox ">
+                                    <Checkbox inputId={category.key} name="pide" value={category} onChange={(e)=>onChangePsi(e,'pide')} checked={selectPide.some((item) => item.key === category.key)} />
+                                    <label htmlFor={category.key}>{category.name}</label>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+            </div>
         </div>
         <div>
             <Divider align="left">
                 <div className="inline-flex align-items-center">
-                    <i className="pi pi-user mr-2"></i>
+                    <i className="pi pi-check-square mr-2"></i>
                     <b>DATOS DE AUTORIZACIÓN</b>
                 </div>
             </Divider>
-            <div className="grid ml-4  text-left">
+            <div className="grid ml-4  text-left text-sm">
                 <div className="col-12 md:col-4">
-                    <label className='block mb-2' htmlFor="sustento">SUSTENTO:</label>
-                    <InputTextarea id="sustento" className="col-12" rows={2} value={sustento} onChange={(e) => setSustento(e.target.value)} autoResize />
+                    <label className='block mb-2 font-semibold' htmlFor="sustento">Sustento:</label>
+                    <InputTextarea id="sustento" className="col-12" rows={2} value={sustento} onChange={(e) => setSustento(e.target.value)} autoResize placeholder="Ingrese sustento de la autorización" />
                 </div>
                 <div className="col-12 md:col-8">
-                    <label className='block mb-2' htmlFor="autorizado">AUTORIZADO POR:</label>
-                    <div className="grid">
-                        <SelectButton id="autorizado" className="mb-2 col-12 md:col-3" value={autorizado} options={listAutorizado} onChange={(e) => setAutorizado(e.value)} />
-                        <div className="col-12 md:col-9">
+                    <label className='block mb-2 font-semibold' htmlFor="autorizado">Autorizado por:</label>
+                    <div className="grid my-auto">
+                        <SelectButton id="autorizado" className="mb-2 col-12 md:col-4 " value={autorizado} options={listAutorizado} onChange={(e) => setAutorizado(e.value)} />
+                        <div className="col-12 md:col-8">
                             {autorizadoView()}
                         </div>
                     </div>      
                 </div>
             </div>
-            <Button type="button" className="p-button-success" label="Generar PDF" onClick={FsaV2Report_}/>
-            <Button variant="outlined">
-                <PDFDownloadLink document={FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
+            <Button variant="outlined" className="p-button-success" onClick={prueba}>
+                <PDFDownloadLink document={(nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? "ERROR": FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
                     selectSistemas,autorizadoPor,autorizado})} fileName={"FSA - "+nombre+" "+apePaterno+" "+apeMaterno}>
-                    {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Download now!')}
+                    {(nombre==="" ? 'Falta Completar datos ->' : <i className="pi pi-file-export text-white text-lg"> Generar PDF</i>)}
                 </PDFDownloadLink>
             </Button>
         </div>   
