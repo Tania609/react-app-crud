@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef,ReactPDF } from "react";
 import { Divider } from 'primereact/divider';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
@@ -6,10 +6,11 @@ import { Checkbox } from 'primereact/checkbox';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { SelectButton } from 'primereact/selectbutton';
 import { Button } from 'primereact/button';
+import { classNames } from "primereact/utils";
 import Entidades from '../services/Entidades';
 import jsPDF from "jspdf";
 import FsaV2Report from "../reports/FsaV2Report";
-
+import {PDFDownloadLink} from '@react-pdf/renderer';
 const FsaV2 = () => {
     const [dni,setDni]=useState("");
     const [nombre,setNombre]=useState("");
@@ -27,6 +28,8 @@ const FsaV2 = () => {
     const [autorizadoPor,setAutorizadoPor]=useState("");
 
     const [autorizado, setAutorizado]=useState("Jefe");
+
+    const [submitted,setSubmitted]=useState(false);
 
     const [empleados,empleadosCombo,oficinas,oficinasCombo,perfiles,perfilCombo,estados,estadosCombo,areas,areasCombo]=Entidades();
      
@@ -110,6 +113,7 @@ const FsaV2 = () => {
                         id="jefe"
                         value={autorizadoPor}
                         placeholder="Ingrese Nombre del jefe"
+                        onChange={(e) => setAutorizadoPor(e.target.value)}
                     />    
                 </div>       
             );
@@ -121,24 +125,23 @@ const FsaV2 = () => {
                         id="documento"
                         value={autorizadoPor}
                         placeholder="Documento que sustenta la autorizacion"
+                        onChange={(e) => setAutorizadoPor(e.target.value)}
                     />
                 </div>
             );
         }
     };
-    const jsPdfGenerator=()=>{
-        var doc=new jsPDF('p','pt');
-        
-        doc.text(20,20,"Title");
-        doc.text(100,200,"prueb");
-        doc.cell(80,6,"ZONA REGISTRAL N° X - SEDE CUSCO",0,1,"C");
-        doc.save("FSA.pdf")
-    };
     const FsaV2Report_=()=>{
-        console.log(nombre);
-        return (FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
-            selectSistemas,autorizadoPor}));
-    }
+        setSubmitted(true)
+        if(nombre=!""){
+            return(
+            <PDFDownloadLink document={FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
+                selectSistemas,autorizadoPor,autorizado})} fileName={"FSA - "+nombre+" "+apePaterno+" "+apeMaterno}>
+                {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Download now!')}
+            </PDFDownloadLink>
+            )
+        }
+    };
     return (
     <div className='card'>
         <h1>SOLICITUD DE ACCESOS</h1>
@@ -151,46 +154,53 @@ const FsaV2 = () => {
             </Divider>
             <div className="grid ml-4 mt-4">
                 <div className='col-12 md:col-4 grid'>     
-                        <label className='col-12 md:col-3 text-left' htmlFor="nombre">NOMBRES:</label>
-                        <InputText className='col-12 md:col-7 ' 
-                            id="nombre"
-                            value={nombre}
-                            placeholder="Ingrese nombre"
-                            onChange={(e) => setNombre(e.target.value)}
-                        />
+                    <label className='col-12 md:col-3 text-left' htmlFor="nombre">NOMBRES:</label>
+                    <InputText className={classNames({"p-invalid": submitted&& nombre===""},'col-12 md:col-8')}
+                        id="nombre"
+                        value={nombre}
+                        placeholder="Ingrese nombre"
+                        onChange={(e) => setNombre(e.target.value)}
+                        autoFocus
+                    />
+                    {submitted && nombre==="" &&(
+                    <small className="ml-2 p-error col-12 ">Falta nombre</small>)}  
                 </div>
                 <div className='col-12 md:col-4 grid'>     
-                        <label className='col-12 md:col-3 text-left' htmlFor="apePaterno">APELLIDO PATERNO:</label>
-                        <InputText className='col-12 md:col-7' 
-                            id="apePaterno"
-                            value={apePaterno}
-                            placeholder="Ingrese apellido paterno"
-                            onChange={(e) => setApePaterno(e.target.value)}
-                        />
+                    <label className='col-12 md:col-3 text-left' htmlFor="apePaterno">APELLIDO PATERNO:</label>
+                    <InputText className={classNames({"p-invalid": submitted&& apePaterno===""},'col-12 md:col-8')}
+                        id="apePaterno"
+                        value={apePaterno}
+                        placeholder="Ingrese apellido paterno"
+                        onChange={(e) => setApePaterno(e.target.value)}
+                    />
+                    {submitted && apePaterno==="" &&(
+                    <small className="ml-2 p-error col-12 ">Falta apellido paterno</small>)}  
                 </div>
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left' htmlFor="apeMaterno">APELLIDO MATERNO:</label>
-                    <InputText className='col-12 md:col-7' 
+                    <InputText className={classNames({"p-invalid": submitted&& apeMaterno===""},'col-12 md:col-8')}
                         id="apeMaterno"
                         value={apeMaterno}
                         placeholder="Ingrese apellido materno"
                         onChange={(e) => setApeMaterno(e.target.value)}
                     />
+                    {submitted && apeMaterno==="" &&(
+                    <small className="ml-2 p-error col-12 ">Falta apellido materno</small>)}  
                 </div>
             </div>
             <div className="grid ml-4 mt-4">
                 <div className='col-12 md:col-4 grid'>     
-                        <label className='col-12 md:col-3 text-left' htmlFor="Correo">CORREO ELECTRONICO:</label>
-                        <InputText className='col-12 md:col-7' 
-                            id="Correo"
-                            value={correo}
-                            placeholder="Ingrese correo"
-                            onChange={(e) => setCorreo(e.target.value)}
-                        />
+                    <label className='col-12 md:col-3 text-left' htmlFor="Correo">CORREO ELECTRONICO:</label>
+                    <InputText className='col-12 md:col-8' 
+                        id="Correo"
+                        value={correo}
+                        placeholder="Ingrese correo"
+                        onChange={(e) => setCorreo(e.target.value)}
+                    />
                 </div>
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left' htmlFor="dirIp">DIRECCION IP:</label>
-                    <InputText className='col-12 md:col-7' 
+                    <InputText className='col-12 md:col-8' 
                         id="dirIp"
                         value={dirIp}
                         placeholder="Ingrese direccion ip"
@@ -199,21 +209,21 @@ const FsaV2 = () => {
                 </div>
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left' htmlFor="oficina">OFICINA:</label>
-                    <Dropdown id="oficina" className="col-12 md:col-7 text-left"  value={oficina} options={oficinas} placeholder="Ingrese oficina" filter/>
+                    <Dropdown id="oficina" className="col-12 md:col-8 text-left"  value={oficina} options={oficinas} placeholder="Ingrese oficina" filter/>
                 </div>
             </div>
             <div className="grid ml-4 mt-4">
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left' htmlFor="unidad">UNIDAD:</label>
-                    <Dropdown id="unidad" className="col-12 md:col-7 text-left"  value={area} options={areas} placeholder="Ingrese unidad" filter/>
+                    <Dropdown id="unidad" className="col-12 md:col-8 text-left"  value={area} options={areas} placeholder="Ingrese unidad" filter/>
                 </div>
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left' htmlFor="area">AREA:</label>
-                    <Dropdown id="area" className="col-12 md:col-7 text-left"  value={area} options={areas} placeholder="Ingrese area" filter />
+                    <Dropdown id="area" className="col-12 md:col-8 text-left"  value={area} options={areas} placeholder="Ingrese area" filter />
                 </div>
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left' htmlFor="cargo">CARGO:</label>
-                    <Dropdown id="cargo" className="col-12 md:col-7 text-left"  value={cargo} options={perfiles} placeholder="Ingrese cargo" filter/>
+                    <Dropdown id="cargo" className="col-12 md:col-8 text-left"  value={cargo} options={perfiles} placeholder="Ingrese cargo" filter/>
                 </div>
             </div>
         </div>
@@ -310,8 +320,13 @@ const FsaV2 = () => {
                     </div>      
                 </div>
             </div>
-            <Button className="p-button-success" label="Generar PDF" />
-            {FsaV2Report_()}
+            <Button type="button" className="p-button-success" label="Generar PDF" onClick={FsaV2Report_}/>
+            <Button variant="outlined">
+                <PDFDownloadLink document={FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
+                    selectSistemas,autorizadoPor,autorizado})} fileName={"FSA - "+nombre+" "+apePaterno+" "+apeMaterno}>
+                    {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Download now!')}
+                </PDFDownloadLink>
+            </Button>
         </div>   
     </div>
   )
