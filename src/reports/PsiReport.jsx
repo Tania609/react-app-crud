@@ -76,6 +76,7 @@ const PsiReport = ({dni,nombre,apePaterno,apeMaterno,correo,cargo,unidad,oficina
         tableItems2:{
             paddingHorizontal:5,
             paddingVertical:2,
+            textTransform:'uppercase'
         },
         tablesItemSub:{paddingHorizontal:2,paddingVertical:5, textAlign:'center',lineHeight:0.9,borderBottom:0.5,backgroundColor:'#EFECE1',fontSize:10},
         tablesItemSubBody:{paddingHorizontal:2,fontSize:8}
@@ -183,8 +184,8 @@ const PsiReport = ({dni,nombre,apePaterno,apeMaterno,correo,cargo,unidad,oficina
                         <Text style={[styles.item70,styles.tableItems2]}>{dni}</Text>
                     </View>
                     <View style={[styles.container,{borderBottom:0.5,borderTop:0.5,}]}>
-                        <Text style={[styles.item30, styles.tableItems]}>Correo electrónico</Text>
-                        <Text style={[styles.item70,styles.tableItems2]}>{correo}</Text>
+                        <Text style={[styles.item30,styles.tableItems]}>Correo electrónico</Text>
+                        <Text style={[styles.item70,{paddingHorizontal:5,paddingVertical:2,}]}>{correo}</Text>
                     </View>
                     <View style={[styles.container,{borderTop:0.5,}]}>
                         <Text style={[styles.item30, styles.tableItems]}>Cargo</Text>

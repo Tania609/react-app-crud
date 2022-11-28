@@ -43,7 +43,9 @@ const FsaV2 = () => {
     const [submitted,setSubmitted]=useState(false);
 
     const [empleados,empleadosCombo,oficinas,oficinasCombo,perfiles,perfilCombo,estados,estadosCombo,areas,areasCombo]=Entidades();
-     
+    const unidades=[
+        'U. REGISTRAL','U. ADMINISTRACION','U. PLANEAMIENTO Y PRESUPUESTO','U. ASESORÍA JURÍDICA','OCI','UTI','IMAGEN'
+    ]
     const listRegistrales=[
         {name:"Usuario Windows",key:'"Reg0'},
         {name:"Consulta Registral",key:'Reg1'},
@@ -214,18 +216,40 @@ const FsaV2 = () => {
     const psipdf=()=>{
         if(psi){
             return(
-                <Button variant="outlined" className="p-button-success" onClick={prueba}>
-                    <PDFDownloadLink document={(nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? "ERROR": PsiReport({dni,nombre,apePaterno,apeMaterno,correo,cargo,unidad,oficina,autorizadoPor,
+                <Button variant="outlined" className="p-button-success" onClick={prueba}  disabled={(nombre===""|| dni===""||apeMaterno===""||apePaterno==="")?true:false}>
+                    <PDFDownloadLink document={PsiReport({dni,nombre,apePaterno,apeMaterno,correo,cargo,unidad,oficina,autorizadoPor,
                         selectNotarios,selectEmpresas,selectSeguridad,selectVerificadores,selectEntidades,selectPide,
-                        mNotarios,mEmpresas,mSeguridad,mVerificadores,mEntidades,mPide})} fileName={"PSI - "+nombre+" "+apePaterno+" "+apeMaterno}>
-                        {(nombre==="" ? 'Falta Completar datos (PSI) ->' : <i className="pi pi-file-export text-white text-lg"> Generar PSI</i>)}
+                        mNotarios,mEmpresas,mSeguridad,mVerificadores,mEntidades,mPide})} fileName={("PSI - "+nombre+" "+apePaterno+" "+apeMaterno).toUpperCase()}>
+                        {((nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? <i className="pi pi-info-circle text-white text-lg"> Falta Completar datos (PSI)</i>  : <i className="pi pi-file-export text-white text-lg"> Generar PSI</i>)}
                     </PDFDownloadLink>
                 </Button>
             )
         }
-        
-            
-        
+    };
+    const clearData=()=>{
+        setNombre("");
+        setDni("");
+        setNombre("");
+        setApePaterno("");
+        setApeMaterno("");
+        setCorreo("");
+        setOficina("");
+        setUnidad("");
+        setArea("");
+        setCargo("");
+        setDirIp("");
+        setSustento("");
+        setSelectSistemas([]);
+        setAutorizadoPor("");
+        setAutorizado("Jefe");
+        setPsi(false);
+        setSelectNotarios([]);
+        setSelectEmpresas([]);
+        setSelectSeguridad([]);
+        setSelectVerificadores([]);
+        setSelectEntidades([]);
+        setSelectPide([]);
+        setSubmitted(false);
     }
     return (
     <div className='card'>
@@ -312,24 +336,22 @@ const FsaV2 = () => {
             <div className="grid ml-4 mt-4 text-sm">
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left font-semibold' htmlFor="oficina">Oficina :</label>
-                    <Dropdown id="oficina" className="col-12 md:col-8 text-left"  value={oficina} options={oficinas} placeholder="Ingrese oficina" filter/>
+                    <Dropdown id="oficina" className="col-12 md:col-8 text-left"  value={oficina} options={oficinas} onChange={(e)=>setOficina(e.value)} placeholder="Ingrese oficina" filter/>
                 </div>
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left font-semibold' htmlFor="unidad">Unidad :</label>
-                    <Dropdown id="unidad" className="col-12 md:col-8 text-left"  value={area} options={areas} placeholder="Ingrese unidad" filter/>
+                    <Dropdown id="unidad" className="col-12 md:col-8 text-left"  value={unidad} options={unidades} onChange={(e)=>setUnidad(e.value)} placeholder="Ingrese unidad" filter/>
                 </div>
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left font-semibold' htmlFor="area">Área :</label>
-                    <Dropdown id="area" className="col-12 md:col-8 text-left"  value={area} options={areas} placeholder="Ingrese area" filter />
+                    <Dropdown id="area" className="col-12 md:col-8 text-left"  value={area} options={areas} onChange={(e)=>setArea(e.value)} placeholder="Ingrese area" filter />
                 </div>
             </div>
             <div className="grid ml-4 mt-4 text-sm">
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left font-semibold' htmlFor="cargo">Cargo :</label>
-                    <Dropdown id="cargo" className="col-12 md:col-8 text-left"  value={cargo} options={perfiles} placeholder="Ingrese cargo" filter/>
+                    <Dropdown id="cargo" className="col-12 md:col-8 text-left"  value={cargo} options={perfiles} onChange={(e)=>setCargo(e.value)} placeholder="Ingrese cargo" filter/>
                 </div>
-                
-                
             </div>
         </div>
         <div>
@@ -497,10 +519,10 @@ const FsaV2 = () => {
                 </div>
             </div>
             
-            <Button variant="outlined" className="p-button-success" onClick={prueba}>
-                <PDFDownloadLink document={(nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? "ERROR": FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
-                    selectSistemas,autorizadoPor,autorizado})} fileName={"FSA - "+nombre+" "+apePaterno+" "+apeMaterno}>
-                    {(nombre==="" ? 'Falta Completar datos (FSA) ->' : <i className="pi pi-file-export text-white text-lg"> Generar FSA</i>)}
+            <Button variant="outlined" className="p-button-success" onClick={prueba} disabled={(nombre===""|| dni===""||apeMaterno===""||apePaterno==="")?true:false}>
+                <PDFDownloadLink document={FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
+                    selectSistemas,autorizadoPor,autorizado})} fileName={("FSA - "+nombre+" "+apePaterno+" "+apeMaterno).toUpperCase()}>
+                    {((nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? <i className="pi pi-info-circle text-white text-lg"> Falta Completar datos (FSA)</i> : <i className="pi pi-file-export text-white text-lg"> Generar FSA</i>)}
                 </PDFDownloadLink>
             </Button>
             {psipdf()}

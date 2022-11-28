@@ -74,7 +74,7 @@ const FsaV2Report = ({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,are
     const sistemas = [];
     for (let i in selectSistemas) {
         sistemas.push(
-            <View style={styles.container}>
+            <View style={styles.container} key={selectSistemas[i].key}>
                 <View style={[{borderRight:1,borderBottom:1,borderLeft:1,width:'20%',paddingTop:8,paddingBottom:3},]}>
                     <Text  style={[{ fontSize: 9,},styles.marginAuto]} >{parseInt(i)+1}</Text>
                 </View>
@@ -152,19 +152,19 @@ const FsaV2Report = ({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,are
                         <View style={styles.item30}>
                             <View style={[styles.container,{ padding: 1},styles.marginYauto]}>
                                 <View style={styles.item30}><Text  style={styles.textItems}>Oficina</Text></View>
-                                <View style={styles.item70}><Text  style={{ fontSize: 10}} >: {oficina} </Text></View>
+                                <View style={styles.item70}><Text  style={{ fontSize: 9,textTransform:'uppercase'}} >: {oficina} </Text></View>
                             </View>
                         </View>
                         <View style={styles.item30}>
                             <View style={[styles.container,{ padding: 1},styles.marginYauto]}>
                                 <View style={styles.item30}><Text  style={styles.textItems}>Unidad</Text></View>
-                                <View style={styles.item70}><Text  style={{ fontSize: 10}} >: {unidad}</Text></View>
+                                <View style={styles.item70}><Text  style={{ fontSize: 9,textTransform:'uppercase'}} >: {unidad}</Text></View>
                             </View>
                         </View>
                         <View style={styles.item30}>
                             <View style={[styles.container,{ padding: 1},styles.marginYauto]}>
                                 <View style={styles.item30}><Text style={styles.textItems}>Area</Text></View>
-                                <View style={styles.item70}><Text style={{ fontSize: 10}} >: {area} </Text></View>
+                                <View style={styles.item70}><Text style={{ fontSize: 9,textTransform:'uppercase'}} >: {area} </Text></View>
                             </View>
                         </View>
                     </View>
@@ -172,19 +172,19 @@ const FsaV2Report = ({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,are
                         <View style={styles.item30}>
                             <View style={[styles.container,{ padding: 1},styles.marginYauto]}>
                                 <View style={styles.item30}><Text  style={styles.textItems}>Cargo</Text></View>
-                                <View style={styles.item70}><Text  style={{ fontSize: 10}} >: {cargo}</Text></View>
+                                <View style={styles.item70}><Text  style={{ fontSize: 9,textTransform:'uppercase'}} >: {cargo}</Text></View>
                             </View>
                         </View>
                         <View style={styles.item30}>
                             <View style={[styles.container,{ padding: 1},styles.marginYauto]}>
                                 <View style={styles.item30}><Text  style={styles.textItems}>IP</Text></View>
-                                <View style={styles.item70}><Text  style={{ fontSize: 10}} >: {dirIp}</Text></View>
+                                <View style={styles.item70}><Text  style={{ fontSize: 9,textTransform:'uppercase'}}>: {dirIp}</Text></View>
                             </View>
                         </View>
                         <View style={styles.item30}>
                             <View style={[styles.container,{ padding: 1},styles.marginYauto]}>
                                 <View style={styles.item30}><Text  style={styles.textItems}>Correo</Text></View>
-                                <View style={styles.item70}><Text  style={{ fontSize: 10}} >: {correo}</Text></View>
+                                <View style={styles.item70}><Text  style={{ fontSize: 9,}}>: {correo}</Text></View>
                             </View>
                         </View>
                     </View>
