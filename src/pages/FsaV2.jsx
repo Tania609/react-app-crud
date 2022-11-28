@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef,ReactPDF } from "react";
 import { Divider } from 'primereact/divider';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
@@ -6,10 +6,12 @@ import { Checkbox } from 'primereact/checkbox';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { SelectButton } from 'primereact/selectbutton';
 import { Button } from 'primereact/button';
+import { classNames } from "primereact/utils";
 import Entidades from '../services/Entidades';
 import jsPDF from "jspdf";
 import FsaV2Report from "../reports/FsaV2Report";
-
+import {PDFDownloadLink} from '@react-pdf/renderer';
+import PsiReport from "../reports/PsiReport";
 const FsaV2 = () => {
     const [dni,setDni]=useState("");
     const [nombre,setNombre]=useState("");
@@ -23,14 +25,20 @@ const FsaV2 = () => {
     const [dirIp,setDirIp]=useState("");
     const [sustento,setSustento]=useState("");
     
-    const [selectRegistrales,setSelectRegistral]=useState([]);
-    const [selectWeb,setSelectWeb]=useState([]);
-    const [selectAdmi,setSelectAdmi]=useState([]);
-    const [selectInfo,setSelectInfo]=useState([]);
-    const [selectAnti,setSelectAnti]=useState([]);
+    const [selectSistemas,setSelectSistemas]=useState([]);
     const [autorizadoPor,setAutorizadoPor]=useState("");
 
     const [autorizado, setAutorizado]=useState("Jefe");
+    const [psi,setPsi]=useState(false);
+
+    const [selectNotarios,setSelectNotarios]=useState([]);
+    const [selectEmpresas,setSelectEmpresas]=useState([]);
+    const [selectSeguridad,setSelectSeguridad]=useState([]);
+    const [selectVerificadores,setSelectVerificadores]=useState([]);
+    const [selectEntidades,setSelectEntidades]=useState([]);
+    const [selectPide,setSelectPide]=useState([]);
+
+    const [submitted,setSubmitted]=useState(false);
 
     const [empleados,empleadosCombo,oficinas,oficinasCombo,perfiles,perfilCombo,estados,estadosCombo,areas,areasCombo]=Entidades();
      
@@ -89,10 +97,55 @@ const FsaV2 = () => {
         {name:"Usuario Consola McAfee",key:'ant5'},
     ];
     const listAutorizado=['Jefe','Documento']
-    
-   
-    const change=(e,selectArray, setSelectArray)=>{
-        let _selectedCategories = [...selectArray];
+    const mNotarios=[
+        {name:'Consulta',key:'not0'},
+        {name:'Asistente GR',key:'not1'},
+    ];
+    const mEmpresas=[
+        {name:'Consulta',key:'emp0'},
+        {name:'Asistente GR',key:'emp1'},
+    ];
+    const mSeguridad=[
+        {name:'Administración',key:'seg0'},
+    ];
+    const mVerificadores=[
+        {name:'Consulta',key:'ver0'},
+        {name:'Administración',key:'ver1'},
+        {name:'Registrador',key:'ver2'},
+    ];
+    const mEntidades=[
+        {name:'Consulta',key:'ent0'},
+        {name:'Administración',key:'ent1'},
+    ];
+    const mPide=[
+        {name:'RENIEC',key:'pid0'},
+        {name:'FMV',key:'pid1'},
+    ];
+    const onCategoryChange = (e) => {
+        if(e.value.name==="PSI"){
+            document.getElementById("psi").className="visible"
+            setPsi(true);
+        }
+        let _selectedCategories = [...selectSistemas];
+        if (e.checked) {
+            _selectedCategories.push(e.value);
+        } else {
+            if(e.value.name==="PSI"){
+                document.getElementById("psi").className="hidden"
+                setPsi(false);
+            }
+            for (let i = 0; i < _selectedCategories.length; i++) {
+                const selectedCategory = _selectedCategories[i];
+                if (selectedCategory.key === e.value.key) {
+                    _selectedCategories.splice(i, 1);
+                    break;
+                }
+            }
+        }
+        setSelectSistemas(_selectedCategories);
+    };
+    const categotyPsi=(arraySelect,setArraySelect,e)=>{
+        let _selectedCategories = [...arraySelect];
         if (e.checked) {
             _selectedCategories.push(e.value);
         } else {
@@ -104,66 +157,62 @@ const FsaV2 = () => {
                 }
             }
         }
-        setSelectArray(_selectedCategories);
+        setArraySelect(_selectedCategories);
     };
-    const onCategoryChange = (e, tipo) => {
-        if(tipo="registrales"){
-            change(e,selectRegistrales,setSelectRegistral);
+    const onChangePsi = (e,tipo) => {
+        if(tipo==="notarios"){
+            categotyPsi(selectNotarios,setSelectNotarios,e);
         }
-        if(tipo="web"){
-            change(e,selectWeb,setSelectWeb);
+        if(tipo==="empresas"){
+            categotyPsi(selectEmpresas,setSelectEmpresas,e);
         }
-        if(tipo="administrativos"){
-            change(e,selectAdmi,setSelectAdmi);
+        if(tipo==="seguridad"){
+            categotyPsi(selectSeguridad,setSelectSeguridad,e);
         }
-        if(tipo="informatica"){
-            change(e,selectInfo,setSelectInfo);
+        if(tipo==="verificadores"){
+            categotyPsi(selectVerificadores,setSelectVerificadores,e);
         }
-        if(tipo="antivirus"){
-            change(e,selectAnti,setSelectAnti);
+        if(tipo==="entidades"){
+            categotyPsi(selectEntidades,setSelectEntidades,e);
         }
-        if(tipo="autorizado"){
-            
+        if(tipo==="pide"){
+            categotyPsi(selectPide,setSelectPide,e);
         }
-        console.log(selectRegistrales)
-    }
+    };
     const autorizadoView=()=>{
         if(autorizado==="Jefe"){
             return(
                 <div key="sdd">
-                    <label className='col-12 md:col-3 text-left' htmlFor="jefe">Jefe de la Unidad/Jefe Inmediato:</label>
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="jefe">Jefe de la Unidad/Jefe Inmediato:</label>
                     <InputText className='col-12 md:col-7' 
                         id="jefe"
                         value={autorizadoPor}
                         placeholder="Ingrese Nombre del jefe"
+                        onChange={(e) => setAutorizadoPor(e.target.value)}
                     />    
                 </div>       
             );
         }else{
             return(
                 <div key="dfsd">
-                    <label className='col-12 md:col-3 text-left' htmlFor="documento">Documento:</label>
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="documento">Documento:</label>
                     <InputText className='col-12 md:col-7' 
                         id="documento"
                         value={autorizadoPor}
                         placeholder="Documento que sustenta la autorizacion"
+                        onChange={(e) => setAutorizadoPor(e.target.value)}
                     />
                 </div>
             );
         }
     };
-    const jsPdfGenerator=()=>{
-        var doc=new jsPDF('p','pt');
-        
-        doc.text(20,20,"Title");
-        doc.text(100,200,"prueb");
-        doc.cell(80,6,"ZONA REGISTRAL N° X - SEDE CUSCO",0,1,"C");
-        doc.save("FSA.pdf")
+    const prueba=()=>{
+        setSubmitted(true)
     };
-    const FsaV2Report_=()=>{
-        console.log(nombre);
-        return (FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
-            selectRegistrales,selectWeb,selectAdmi,selectInfo,selectAnti,autorizadoPor}));
+    const psipdf=()=>{
+        let psiRep=PsiReport({dni,nombre,apePaterno,apeMaterno,correo,cargo,unidad,oficina,
+            selectNotarios,selectEmpresas,selectSeguridad,selectVerificadores,selectEntidades,selectPide});
+        return psiRep;
     }
     return (
     <div className='card'>
@@ -175,89 +224,116 @@ const FsaV2 = () => {
                     <b>DATOS PERSONALES</b>
                 </div>
             </Divider>
-            <div className="grid ml-4 mt-4">
-                <div className='col-12 md:col-4 grid'>     
-                        <label className='col-12 md:col-3 text-left' htmlFor="nombre">NOMBRES:</label>
-                        <InputText className='col-12 md:col-7 ' 
-                            id="nombre"
-                            value={nombre || ""}
-                            placeholder="Ingrese nombre"
-                            onChange={(e) => setNombre(e.target.value)}
-                        />
+            <div className="grid ml-4 mt-4 text-sm">
+                <div className='col-12 md:col-4 grid '>     
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="dni">DNI :</label>
+                    <InputText className={classNames({"p-invalid": submitted&& dni===""},'col-12 md:col-8')}
+                        id="dni"
+                        value={dni}
+                        placeholder="Ingrese número DNI"
+                        onChange={(e) => setDni(e.target.value)}
+                        autoFocus
+                    />
+                    {submitted && dni==="" &&(
+                    <small className="ml-2 p-error col-12 p-0">Falta DNI</small>)}  
                 </div>
-                <div className='col-12 md:col-4 grid'>     
-                        <label className='col-12 md:col-3 text-left' htmlFor="apePaterno">APELLIDO PATERNO:</label>
-                        <InputText className='col-12 md:col-7' 
-                            id="apePaterno"
-                            value={apePaterno}
-                            placeholder="Ingrese apellido paterno"
-                            onChange={(e) => setApePaterno(e.target.value)}
-                        />
+                <div className='col-12 md:col-4 grid '>     
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="nombre">Nombres :</label>
+                    <InputText className={classNames({"p-invalid": submitted&& nombre===""},'col-12 md:col-8 pt-1')}
+                        id="nombre"
+                        value={nombre}
+                        placeholder="Ingrese nombre"
+                        onChange={(e) => setNombre(e.target.value)}
+                        autoFocus
+                    />
+                    {submitted && nombre==="" &&(
+                    <small className="ml-2 p-error col-12 p-0">Falta nombre</small>)}  
                 </div>
+                <div className='col-12 md:col-4 grid '>     
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="apePaterno">Apellido paterno :</label>
+                    <InputText className={classNames({"p-invalid": submitted&& apePaterno===""},'col-12 md:col-8')}
+                        id="apePaterno"
+                        value={apePaterno}
+                        placeholder="Ingrese apellido paterno"
+                        onChange={(e) => setApePaterno(e.target.value)}
+                        autoFocus
+                    />
+                    {submitted && apePaterno==="" &&(
+                    <small className="ml-2 p-error col-12 p-0">Falta apellido paterno</small>)}  
+                </div>
+            </div>
+            <div className="grid ml-4 mt-4 text-sm">
                 <div className='col-12 md:col-4 grid'>     
-                    <label className='col-12 md:col-3 text-left' htmlFor="apeMaterno">APELLIDO MATERNO:</label>
-                    <InputText className='col-12 md:col-7' 
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="apeMaterno">Apellido materno :</label>
+                    <InputText className={classNames({"p-invalid": submitted&& apeMaterno===""},'col-12 md:col-8')}
                         id="apeMaterno"
                         value={apeMaterno}
                         placeholder="Ingrese apellido materno"
                         onChange={(e) => setApeMaterno(e.target.value)}
+                        autoFocus
+                    />
+                    {submitted && apeMaterno==="" &&(
+                    <small className="ml-2 p-error col-12 p-0">Falta apellido materno</small>)}  
+                </div>
+                <div className='col-12 md:col-4 grid'>     
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="Correo">Correo eletrónico :</label>
+                    <InputText className='col-12 md:col-8' 
+                        id="Correo"
+                        value={correo}
+                        placeholder="Ingrese correo"
+                        onChange={(e) => setCorreo(e.target.value)}
+                        autoFocus
                     />
                 </div>
-            </div>
-            <div className="grid ml-4 mt-4">
                 <div className='col-12 md:col-4 grid'>     
-                        <label className='col-12 md:col-3 text-left' htmlFor="Correo">CORREO ELECTRONICO:</label>
-                        <InputText className='col-12 md:col-7' 
-                            id="Correo"
-                            value={correo}
-                            placeholder="Ingrese correo"
-                            onChange={(e) => setCorreo(e.target.value)}
-                        />
-                </div>
-                <div className='col-12 md:col-4 grid'>     
-                    <label className='col-12 md:col-3 text-left' htmlFor="dirIp">DIRECCION IP:</label>
-                    <InputText className='col-12 md:col-7' 
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="dirIp">IP :</label>
+                    <InputText className='col-12 md:col-8' 
                         id="dirIp"
                         value={dirIp}
-                        placeholder="Ingrese direccion ip"
+                        placeholder="Ingrese dirección ip"
                         onChange={(e) => setDirIp(e.target.value)}
+                        autoFocus
                     />
                 </div>
+            </div>
+            <div className="grid ml-4 mt-4 text-sm">
                 <div className='col-12 md:col-4 grid'>     
-                    <label className='col-12 md:col-3 text-left' htmlFor="oficina">OFICINA:</label>
-                    <Dropdown id="oficina" className="col-12 md:col-7 text-left"  value={oficina} options={oficinas} placeholder="Ingrese oficina" filter/>
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="oficina">Oficina :</label>
+                    <Dropdown id="oficina" className="col-12 md:col-8 text-left"  value={oficina} options={oficinas} placeholder="Ingrese oficina" filter/>
+                </div>
+                <div className='col-12 md:col-4 grid'>     
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="unidad">Unidad :</label>
+                    <Dropdown id="unidad" className="col-12 md:col-8 text-left"  value={area} options={areas} placeholder="Ingrese unidad" filter/>
+                </div>
+                <div className='col-12 md:col-4 grid'>     
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="area">Área :</label>
+                    <Dropdown id="area" className="col-12 md:col-8 text-left"  value={area} options={areas} placeholder="Ingrese area" filter />
                 </div>
             </div>
-            <div className="grid ml-4 mt-4">
+            <div className="grid ml-4 mt-4 text-sm">
                 <div className='col-12 md:col-4 grid'>     
-                    <label className='col-12 md:col-3 text-left' htmlFor="unidad">UNIDAD:</label>
-                    <Dropdown id="unidad" className="col-12 md:col-7 text-left"  value={area} options={areas} placeholder="Ingrese unidad" filter/>
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="cargo">Cargo :</label>
+                    <Dropdown id="cargo" className="col-12 md:col-8 text-left"  value={cargo} options={perfiles} placeholder="Ingrese cargo" filter/>
                 </div>
-                <div className='col-12 md:col-4 grid'>     
-                    <label className='col-12 md:col-3 text-left' htmlFor="area">AREA:</label>
-                    <Dropdown id="area" className="col-12 md:col-7 text-left"  value={area} options={areas} placeholder="Ingrese area" filter />
-                </div>
-                <div className='col-12 md:col-4 grid'>     
-                    <label className='col-12 md:col-3 text-left' htmlFor="cargo">CARGO:</label>
-                    <Dropdown id="cargo" className="col-12 md:col-7 text-left"  value={cargo} options={perfiles} placeholder="Ingrese cargo" filter/>
-                </div>
+                
+                
             </div>
         </div>
         <div>
             <Divider align="left">
                 <div className="inline-flex align-items-center">
-                    <i className="pi pi-user mr-2"></i>
+                    <i className="pi pi-desktop mr-2"></i>
                     <b>SISTEMAS</b>
                 </div>
             </Divider>
-            <div className="grid ml-4">
+            <div className="grid ml-4 text-sm">
                 <div className="field-checkbox block col-12 md:col-4  text-left">
-                    <h4>Sistemas Registrales</h4>
+                    <p className="font-semibold">Sistemas Registrales</p>
                     {
                         listRegistrales.map((category) => {
                             return (
-                                <div key={category.key} className="field-checkbox">
-                                    <Checkbox inputId={category.key} name="registrales" value={category} onChange={(e)=>onCategoryChange(e,"registrales")} checked={selectRegistrales.some((item) => item.key === category.key)} />
+                                <div key={category.key} className="field-checkbox ">
+                                    <Checkbox inputId={category.key} name="registrales" value={category} onChange={(e)=>onCategoryChange(e)} checked={selectSistemas.some((item) => item.key === category.key)} />
                                     <label htmlFor={category.key}>{category.name}</label>
                                 </div>
                             )
@@ -265,23 +341,23 @@ const FsaV2 = () => {
                     }
                 </div>
                 <div className="field-checkbox block col-12 md:col-4  text-left">
-                    <h4>Sistemas Web</h4>
+                    <p className="font-semibold">Sistemas Web</p>
                     {
                         listWeb.map((category) => {
                             return (
                                 <div key={category.key} className="field-checkbox">
-                                    <Checkbox inputId={category.key} name="web" value={category} onChange={(e)=>onCategoryChange(e,"web")} checked={selectWeb.some((item) => item.key === category.key)} />
+                                    <Checkbox inputId={category.key} name="web" value={category} onChange={(e)=>onCategoryChange(e)} checked={selectSistemas.some((item) => item.key === category.key)} />
                                     <label htmlFor={category.key}>{category.name}</label>
                                 </div>
                             )
                         })
                     }
-                    <h4 className="mt-5">Sistemas Administrativos</h4>
+                    <p className="mt-5 font-semibold">Sistemas Administrativos</p>
                     {
                         listAdministrativos.map((category) => {
                             return (
                                 <div key={category.key} className="field-checkbox">
-                                    <Checkbox inputId={category.key} name="administrativos" value={category} onChange={(e)=>onCategoryChange(e,"administrativos")} checked={selectAdmi.some((item) => item.key === category.key)} />
+                                    <Checkbox inputId={category.key} name="administrativos" value={category} onChange={(e)=>onCategoryChange(e)} checked={selectSistemas.some((item) => item.key === category.key)} />
                                     <label htmlFor={category.key}>{category.name}</label>
                                 </div>
                             )
@@ -289,23 +365,23 @@ const FsaV2 = () => {
                     }
                 </div>
                 <div className="field-checkbox block col-12 md:col-4  text-left">
-                    <h4>Informática/Otros</h4>
+                    <p className="font-semibold">Informática/Otros</p>
                     {
                         listInformatica.map((category) => {
                             return (
                                 <div key={category.key} className="field-checkbox">
-                                    <Checkbox inputId={category.key} name="informaticos" value={category} onChange={(e)=>onCategoryChange(e,"informatica")} checked={selectInfo.some((item) => item.key === category.key)} />
+                                    <Checkbox inputId={category.key} name="informaticos" value={category} onChange={(e)=>onCategoryChange(e)} checked={selectSistemas.some((item) => item.key === category.key)} />
                                     <label htmlFor={category.key}>{category.name}</label>
                                 </div>
                             )
                         })
                     }
-                    <h4 className="mt-5">Antivirus McAfee</h4>
+                    <p className="mt-5 font-semibold">Antivirus McAfee</p>
                     {
                         listAntivirus.map((category) => {
                             return (
                                 <div key={category.key} className="field-checkbox">
-                                    <Checkbox inputId={category.key} name="antivirus" value={category} onChange={(e)=>onCategoryChange(e,"antivirus")} checked={selectAnti.some((item) => item.key === category.key)} />
+                                    <Checkbox inputId={category.key} name="antivirus" value={category} onChange={(e)=>onCategoryChange(e)} checked={selectSistemas.some((item) => item.key === category.key)} />
                                     <label htmlFor={category.key}>{category.name}</label>
                                 </div>
                             )
@@ -313,31 +389,107 @@ const FsaV2 = () => {
                     }
                 </div>
             </div>
+            <div id="psi"className="hidden">
+                <p className="font-semibold text-left ml-5 mt-0 pt-0">PSI</p>
+                <div className="grid text-sm ml-4">
+                    <div className="col-12 md:col-2">
+                        <p className=" font-semibold text-left">Módulo de Notarios</p>
+                        {mNotarios.map((category) => {
+                            return (
+                                <div key={category.key} className="field-checkbox ">
+                                    <Checkbox inputId={category.key} name="notarios" value={category} onChange={(e)=>onChangePsi(e,'notarios')} checked={selectNotarios.some((item) => item.key === category.key)} />
+                                    <label htmlFor={category.key}>{category.name}</label>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div className="col-12 md:col-2">
+                        <p className=" font-semibold text-left">Módulo de Empresas</p>
+                        {mEmpresas.map((category) => {
+                            return (
+                                <div key={category.key} className="field-checkbox ">
+                                    <Checkbox inputId={category.key} name="empresas" value={category} onChange={(e)=>onChangePsi(e,'empresas')} checked={selectEmpresas.some((item) => item.key === category.key)} />
+                                    <label htmlFor={category.key}>{category.name}</label>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div className="col-12 md:col-2">
+                        <p className=" font-semibold text-left">Módulo Seguridad</p>
+                        {mSeguridad.map((category) => {
+                            return (
+                                <div key={category.key} className="field-checkbox ">
+                                    <Checkbox inputId={category.key} name="seguridad" value={category} onChange={(e)=>onChangePsi(e,'seguridad')} checked={selectSeguridad.some((item) => item.key === category.key)} />
+                                    <label htmlFor={category.key}>{category.name}</label>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div className="col-12 md:col-2">
+                        <p className=" font-semibold text-left">Módulo de Verificadores</p>
+                        {mVerificadores.map((category) => {
+                            return (
+                                <div key={category.key} className="field-checkbox ">
+                                    <Checkbox inputId={category.key} name="verificadores" value={category} onChange={(e)=>onChangePsi(e,'verificadores')} checked={selectVerificadores.some((item) => item.key === category.key)} />
+                                    <label htmlFor={category.key}>{category.name}</label>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div className="col-12 md:col-2">
+                        <p className=" font-semibold text-left">Módulo de Entidades</p>
+                        {mEntidades.map((category) => {
+                            return (
+                                <div key={category.key} className="field-checkbox ">
+                                    <Checkbox inputId={category.key} name="entidades" value={category} onChange={(e)=>onChangePsi(e,'entidades')} checked={selectEntidades.some((item) => item.key === category.key)} />
+                                    <label htmlFor={category.key}>{category.name}</label>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div className="col-12 md:col-2">
+                        <p className=" font-semibold text-left">Módulo PIDE</p>
+                        {mPide.map((category) => {
+                            return (
+                                <div key={category.key} className="field-checkbox ">
+                                    <Checkbox inputId={category.key} name="pide" value={category} onChange={(e)=>onChangePsi(e,'pide')} checked={selectPide.some((item) => item.key === category.key)} />
+                                    <label htmlFor={category.key}>{category.name}</label>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+            </div>
         </div>
         <div>
             <Divider align="left">
                 <div className="inline-flex align-items-center">
-                    <i className="pi pi-user mr-2"></i>
+                    <i className="pi pi-check-square mr-2"></i>
                     <b>DATOS DE AUTORIZACIÓN</b>
                 </div>
             </Divider>
-            <div className="grid ml-4  text-left">
+            <div className="grid ml-4  text-left text-sm">
                 <div className="col-12 md:col-4">
-                    <label className='block mb-2' htmlFor="sustento">SUSTENTO:</label>
-                    <InputTextarea id="sustento" className="col-12" rows={2} value={sustento} autoResize />
+                    <label className='block mb-2 font-semibold' htmlFor="sustento">Sustento:</label>
+                    <InputTextarea id="sustento" className="col-12" rows={2} value={sustento} onChange={(e) => setSustento(e.target.value)} autoResize placeholder="Ingrese sustento de la autorización" />
                 </div>
                 <div className="col-12 md:col-8">
-                    <label className='block mb-2' htmlFor="autorizado">AUTORIZADO POR:</label>
-                    <div className="grid">
-                        <SelectButton id="autorizado" className="mb-2 col-12 md:col-3" value={autorizado} options={listAutorizado} onChange={(e) => setAutorizado(e.value)} />
-                        <div className="col-12 md:col-9">
+                    <label className='block mb-2 font-semibold' htmlFor="autorizado">Autorizado por:</label>
+                    <div className="grid my-auto">
+                        <SelectButton id="autorizado" className="mb-2 col-12 md:col-4 " value={autorizado} options={listAutorizado} onChange={(e) => setAutorizado(e.value)} />
+                        <div className="col-12 md:col-8">
                             {autorizadoView()}
                         </div>
                     </div>      
                 </div>
             </div>
-            <Button className="p-button-success" label="Generar PDF" />
-            {FsaV2Report_()}
+            {psipdf}
+            <Button variant="outlined" className="p-button-success" onClick={prueba}>
+                <PDFDownloadLink document={(nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? "ERROR": FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
+                    selectSistemas,autorizadoPor,autorizado})} fileName={"FSA - "+nombre+" "+apePaterno+" "+apeMaterno}>
+                    {(nombre==="" ? 'Falta Completar datos ->' : <i className="pi pi-file-export text-white text-lg"> Generar PDF</i>)}
+                </PDFDownloadLink>
+            </Button>
         </div>   
     </div>
   )

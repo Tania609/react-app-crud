@@ -58,7 +58,7 @@ import Email from './component/Email'
 import { TabView, TabPanel } from 'primereact/tabview';
 import {Routes, Route} from 'react-router-dom';
 import FsaV2 from './pages/FsaV2';
-import Dropwdown2 from './reports/FsaV2Report';
+import Dropwdown2 from './reports/PsiReport';
 const App = () => {
     const tab =()=>{
         return(
