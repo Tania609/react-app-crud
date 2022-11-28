@@ -57,17 +57,18 @@ const FsaV2Report = ({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,are
         }
     });
     const sistemas=()=>{
-        return(
-        <View style={styles.container}>
-            <View style={styles.item30}>
-                <Text  style={{ fontSize: 9,}} >Nro</Text>
-            </View>
-            <View style={styles.item70}>
-                <Text  style={{ fontSize: 9,}} >SISTEMA</Text>
-            </View>
+        for(let i=0;i<4;i++){
             
-        </View>)
-        }
+            <View style={styles.container}>
+                <View style={styles.item30}>
+                    <Text  style={{ fontSize: 9,}} >Nro</Text>
+                </View>
+                <View style={styles.item70}>
+                    <Text  style={{ fontSize: 9,}} >SISTEMA</Text>
+                </View>
+            </View>
+       }
+    }
     const MyDocument = (
         <Document>
             <Page size="A4" style={styles.page}>
@@ -152,7 +153,7 @@ const FsaV2Report = ({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,are
                                         </View>
                                         
                                     </View>
-                                    {sistemas}
+                                    {sistemas()}
                                 </View>
                                 
                             </View>
