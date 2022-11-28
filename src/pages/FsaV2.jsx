@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef,ReactPDF } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Divider } from 'primereact/divider';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
@@ -12,6 +12,8 @@ import jsPDF from "jspdf";
 import FsaV2Report from "../reports/FsaV2Report";
 import {PDFDownloadLink} from '@react-pdf/renderer';
 import PsiReport from "../reports/PsiReport";
+import { Document, Page, Text, View, StyleSheet ,PDFViewer,Image,Font} from '@react-pdf/renderer';
+
 const FsaV2 = () => {
     const [dni,setDni]=useState("");
     const [nombre,setNombre]=useState("");
@@ -210,9 +212,20 @@ const FsaV2 = () => {
         setSubmitted(true)
     };
     const psipdf=()=>{
-        let psiRep=PsiReport({dni,nombre,apePaterno,apeMaterno,correo,cargo,unidad,oficina,
-            selectNotarios,selectEmpresas,selectSeguridad,selectVerificadores,selectEntidades,selectPide});
-        return psiRep;
+        if(psi){
+            return(
+                <Button variant="outlined" className="p-button-success" onClick={prueba}>
+                    <PDFDownloadLink document={(nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? "ERROR": PsiReport({dni,nombre,apePaterno,apeMaterno,correo,cargo,unidad,oficina,autorizadoPor,
+                        selectNotarios,selectEmpresas,selectSeguridad,selectVerificadores,selectEntidades,selectPide,
+                        mNotarios,mEmpresas,mSeguridad,mVerificadores,mEntidades,mPide})} fileName={"PSI - "+nombre+" "+apePaterno+" "+apeMaterno}>
+                        {(nombre==="" ? 'Falta Completar datos (PSI) ->' : <i className="pi pi-file-export text-white text-lg"> Generar PSI</i>)}
+                    </PDFDownloadLink>
+                </Button>
+            )
+        }
+        
+            
+        
     }
     return (
     <div className='card'>
@@ -483,13 +496,14 @@ const FsaV2 = () => {
                     </div>      
                 </div>
             </div>
-            {psipdf}
+            
             <Button variant="outlined" className="p-button-success" onClick={prueba}>
                 <PDFDownloadLink document={(nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? "ERROR": FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
                     selectSistemas,autorizadoPor,autorizado})} fileName={"FSA - "+nombre+" "+apePaterno+" "+apeMaterno}>
-                    {(nombre==="" ? 'Falta Completar datos ->' : <i className="pi pi-file-export text-white text-lg"> Generar PDF</i>)}
+                    {(nombre==="" ? 'Falta Completar datos (FSA) ->' : <i className="pi pi-file-export text-white text-lg"> Generar FSA</i>)}
                 </PDFDownloadLink>
             </Button>
+            {psipdf()}
         </div>   
     </div>
   )
