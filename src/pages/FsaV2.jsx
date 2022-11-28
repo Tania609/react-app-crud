@@ -11,6 +11,7 @@ import Entidades from '../services/Entidades';
 import jsPDF from "jspdf";
 import FsaV2Report from "../reports/FsaV2Report";
 import {PDFDownloadLink} from '@react-pdf/renderer';
+import PsiReport from "../reports/PsiReport";
 const FsaV2 = () => {
     const [dni,setDni]=useState("");
     const [nombre,setNombre]=useState("");
@@ -208,6 +209,11 @@ const FsaV2 = () => {
     const prueba=()=>{
         setSubmitted(true)
     };
+    const psipdf=()=>{
+        let psiRep=PsiReport({dni,nombre,apePaterno,apeMaterno,correo,cargo,unidad,oficina,
+            selectNotarios,selectEmpresas,selectSeguridad,selectVerificadores,selectEntidades,selectPide});
+        return psiRep;
+    }
     return (
     <div className='card'>
         <h1>SOLICITUD DE ACCESOS</h1>
@@ -477,6 +483,7 @@ const FsaV2 = () => {
                     </div>      
                 </div>
             </div>
+            {psipdf}
             <Button variant="outlined" className="p-button-success" onClick={prueba}>
                 <PDFDownloadLink document={(nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? "ERROR": FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
                     selectSistemas,autorizadoPor,autorizado})} fileName={"FSA - "+nombre+" "+apePaterno+" "+apeMaterno}>
