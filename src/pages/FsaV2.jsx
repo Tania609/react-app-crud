@@ -484,7 +484,7 @@ const FsaV2 = () => {
                 </div>
             </div>
             {psipdf}
-            <Button variant="outlined" className="p-button-success" onClick={prueba}>
+            <Button variant="outlined" className="p-button-success" onClick={prueba} type="submit">
                 <PDFDownloadLink document={(nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? "ERROR": FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
                     selectSistemas,autorizadoPor,autorizado})} fileName={"FSA - "+nombre+" "+apePaterno+" "+apeMaterno}>
                     {(nombre==="" ? 'Falta Completar datos ->' : <i className="pi pi-file-export text-white text-lg"> Generar PDF</i>)}
