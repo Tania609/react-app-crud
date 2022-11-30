@@ -42,10 +42,19 @@ const FsaV2 = () => {
 
     const [submitted,setSubmitted]=useState(false);
 
-    const [empleados,empleadosCombo,oficinas,oficinasCombo,perfiles,perfilCombo,estados,estadosCombo,areas,areasCombo]=Entidades();
+    //const [empleados,empleadosCombo,oficinas,oficinasCombo,perfiles,perfilCombo,estados,estadosCombo,areas,areasCombo]=Entidades();
     const unidades=[
         'U. REGISTRAL','U. ADMINISTRACION','U. PLANEAMIENTO Y PRESUPUESTO','U. ASESORÍA JURÍDICA','OCI','UTI','IMAGEN'
-    ]
+    ];
+    const oficinas=[
+        'CUSCO MANCO INCA','CUSCO RPV','URUBAMBA','ABANCAY','MADRE DE DIOS','QUILLABAMBA','SICUANI','ESPINAR','ANDAHUAYLAS','SAN JERONIMO','CALCA','ANTA','URCOS','SANTIAGO','CHUMBIVILCAS','URIPA','CHALLHUAHUACHO','SAN SEBASTIAN','TAMBOPATA'
+    ];
+    const perfiles=[
+        'ANALISTA DE BASE DE DATOS','ASISTENTE ADMINISTRATIVO','ESPECIALISTA EN PERSONAL','ANALISTA DE ARCHIVO','JEFE ZONAL','JEFE','ANALISTA DE SISTEMAS','TECNICO EN SISTEMAS','REGISTRADOR','ASISTENTE REGISTRAL','ABOGADO CERTIFICADOR','ANALISTA CATASTRAL','CAJERO','ASISTENTE PUBLICIDAD','TECNICO EN MANTENIMIENTO','ANALISTA DE ALMACEN Y CONTROL PATRIMONIAL','ESPECIALISTA DE TESORERIA','TECNICO ADMINISTRATIVO','SECRETARIA','ASISTENTE SOCIAL','ESPECIALISTA DE BASE DE DATOS','OPERADOR DE SISTEMAS','ANALISTA DE REDES',
+    ];
+    const areas=[
+        'ASESORIA JURIDICA','CONTROL INTERNO','JEFATURA ZONAL','OCI','PRESUPUESTO','REGISTRAL','CAJA','ARCHIVO','CATASTRO','LIBRO DIARIO','MESA DE PARTES','PUBLICIDAD','UTI','INFORMES','DEFENSORIA','SEGURIDAD','ABASTECIMIENTO','TESORERIA','PERSONAL','CONTABILIDAD','ORIENTACION','ALMACEN PATRIMONIO','ADMINISTRACION','TRAMITE DOCUMENTARIO','IMAGEN','PATRIMONIO'
+    ];
     const listRegistrales=[
         {name:"Usuario Windows",key:'"Reg0'},
         {name:"Consulta Registral",key:'Reg1'},
@@ -216,13 +225,12 @@ const FsaV2 = () => {
     const psipdf=()=>{
         if(psi){
             return(
-                <Button variant="outlined" className="p-button-success" onClick={prueba}  disabled={(nombre===""|| dni===""||apeMaterno===""||apePaterno==="")?true:false}>
                     <PDFDownloadLink document={PsiReport({dni,nombre,apePaterno,apeMaterno,correo,cargo,unidad,oficina,autorizadoPor,
                         selectNotarios,selectEmpresas,selectSeguridad,selectVerificadores,selectEntidades,selectPide,
                         mNotarios,mEmpresas,mSeguridad,mVerificadores,mEntidades,mPide})} fileName={("PSI - "+nombre+" "+apePaterno+" "+apeMaterno).toUpperCase()}>
-                        {((nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? <i className="pi pi-info-circle text-white text-lg"> Falta Completar datos (PSI)</i>  : <i className="pi pi-file-export text-white text-lg"> Generar PSI</i>)}
+                        {((nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? <Button label="Falta Completar datos (PSI)" className="p-button-warning underline:none" icon="pi pi-info-circle" disabled/> : <Button label="Generar (PSI)"className="p-button-success" type="submit" icon="pi pi-file-export" onClick={prueba}/>)}
                     </PDFDownloadLink>
-                </Button>
+                
             )
         }
     };
@@ -253,7 +261,11 @@ const FsaV2 = () => {
     }
     return (
     <div className='card'>
-        <h1>SOLICITUD DE ACCESOS</h1>
+        <div className=" table-header">
+             <h2>SOLICITUD DE ACCESOS</h2>
+             <div><Button label="Limpiar" className="p-button-secondary"  onClick={clearData} /></div>
+            
+        </div>
         <div>
             <Divider align="left">
                 <div className="inline-flex align-items-center">
@@ -519,12 +531,13 @@ const FsaV2 = () => {
                 </div>
             </div>
             
-            <Button variant="outlined" className="p-button-success" onClick={prueba} disabled={(nombre===""|| dni===""||apeMaterno===""||apePaterno==="")?true:false}>
-                <PDFDownloadLink document={FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
-                    selectSistemas,autorizadoPor,autorizado})} fileName={("FSA - "+nombre+" "+apePaterno+" "+apeMaterno).toUpperCase()}>
-                    {((nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? <i className="pi pi-info-circle text-white text-lg"> Falta Completar datos (FSA)</i> : <i className="pi pi-file-export text-white text-lg"> Generar FSA</i>)}
+              <PDFDownloadLink 
+                    document={FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
+                    selectSistemas,autorizadoPor,autorizado})} 
+                    fileName={("FSA - "+nombre+" "+apePaterno+" "+apeMaterno).toUpperCase()}
+                >
+                    {((nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? <Button label="Falta Completar datos (FSA)" className="p-button-warning underline:none" icon="pi pi-info-circle" disabled/> : <Button label="Generar (FSA)"className="p-button-success" type="submit" icon="pi pi-file-export" onClick={prueba}/>)}
                 </PDFDownloadLink>
-            </Button>
             {psipdf()}
         </div>   
     </div>
