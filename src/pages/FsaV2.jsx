@@ -12,9 +12,11 @@ import jsPDF from "jspdf";
 import FsaV2Report from "../reports/FsaV2Report";
 import {PDFDownloadLink} from '@react-pdf/renderer';
 import PsiReport from "../reports/PsiReport";
+import axios from "axios";
 import { Document, Page, Text, View, StyleSheet ,PDFViewer,Image,Font} from '@react-pdf/renderer';
 
 const FsaV2 = () => {
+    const conexion="http://172.20.106.185:8088/desa/bd/crud_uti.php";
     const [dni,setDni]=useState("");
     const [nombre,setNombre]=useState("");
     const [apePaterno,setApePaterno]=useState("");
@@ -43,78 +45,28 @@ const FsaV2 = () => {
     const [submitted,setSubmitted]=useState(false);
 
     const [areaFilter, setAreaFilter]=useState([]);
-    const [empleados,empleadosCombo,oficinas,oficinasCombo,perfiles,perfilCombo,estados,estadosCombo,areas,areasCombo]=Entidades();
-    /*const unidades=[
-        'U. REGISTRAL','U. ADMINISTRACION','U. PLANEAMIENTO Y PRESUPUESTO','U. ASESORÍA JURÍDICA','OCI','UTI','IMAGEN'
-    ];*/
+    const [empleados,empleadosCombo,oficinas,oficinasCombo,perfiles,perfilCombo,estados,estadosCombo,areas,areasCombo,unidades,unidadesCombo]=Entidades();
     
-    const are=[
-        {id:'1', desc_area:'',id_unid:''},		
-        {id:'2', desc_area:'REGISTRAL',id_unid:'3'},
-        {id:'3', desc_area:'CAJA',id_unid:'3'},
-        {id:'4', desc_area:'ARCHIVO',id_unid:'3'},
-        {id:'5', desc_area:'CATASTRO',id_unid:'3'},
-        {id:'6', desc_area:'LIBRO DIARIO',id_unid:'3'},
-        {id:'7', desc_area:'MESA DE PARTES',id_unid:'3'},
-        {id:'8', desc_area:'PUBLICIDAD',id_unid:'3'},
-        {id:'9', desc_area:'UTI',id_unid:'4'},
-        {id:'10', desc_area:'INFORMES',id_unid:'3'},
-        {id:'11', desc_area:'DEFENSORIA',id_unid:'3'},
-        {id:'12', desc_area:'SEGURIDAD',id_unid:'7'},
-        {id:'13', desc_area:'ABASTECIMIENTO',id_unid:'7'},
-        {id:'14', desc_area:'TESORERIA',id_unid:'7'},
-        {id:'15', desc_area:'PERSONAL',id_unid:'7'},
-        {id:'16', desc_area:'CONTABILIDAD',id_unid:'7'},
-        {id:'17', desc_area:'ORIENTACION',id_unid:'3'},
-        {id:'18', desc_area:'ALMACEN PATRIMONIO',id_unid:'7'},
-        {id:'19', desc_area:'ADMINISTRACION',id_unid:'7'},
-        {id:'20', desc_area:'TRAMITE DOCUMENTARIO',id_unid:'3'},
-        {id:'21', desc_area:'IMAGEN',id_unid:'8'},
-        {id:'22', desc_area:'PATRIMONIO',id_unid:'7'},
-        {id:'23', desc_area:'ASESORIA JURIDICA',id_unid:'6'},
-        {id:'24', desc_area:'CONTROL INTERNO',id_unid:'1'},
-        {id:'25', desc_area:'JEFATURA ZONAL',id_unid:'2'},
-        {id:'26', desc_area:'OCI',id_unid:'9'},
-        {id:'27', desc_area:'PRESUPUESTO',id_unid:'5'}
-
-    ];
-    
-    const unidades=[
-        {id:'1', VALO_CORT_UNID:'',DESC_UNID:''},	
-        {id:'2', VALO_CORT_UNID:'JZ',DESC_UNID:'JEFATURA ZONAL'},	
-        {id:'3', VALO_CORT_UNID:'UREG',DESC_UNID:'UNIDAD REGISTRAL'},	
-        {id:'4', VALO_CORT_UNID:'UTI',DESC_UNID:'UNIDAD DE TECNOLOGIAS DE LA INFORMACION'},	
-        {id:'5', VALO_CORT_UNID:'UPP',DESC_UNID:'UNIDAD DE PLANEAMIENTO Y PRESUPUESTO'},	
-        {id:'6', VALO_CORT_UNID:'UAJ',DESC_UNID:'UNIDAD DE ASESORIA JURIDICA'},	
-        {id:'7', VALO_CORT_UNID:'UADM',DESC_UNID:'UNIDAD DE ADMINISTRACION'},	
-        {id:'8', VALO_CORT_UNID:'IMAGEN',DESC_UNID:'IMAGEN'},	
-        {id:'9', VALO_CORT_UNID:'OCI',DESC_UNID:'OFICINA DE CONTROL INTERNO'},	
-    ];
-    const unid=[];
-    for (let clave in unidades){
-        unid.push(unidades[clave].DESC_UNID);
-    };
-    
+    const [empleado_filted,setEmpleadoFilted]=useState([]);
     const loadArea=(e)=>{
         setUnidad(e)
-        let unidad_=unidades.filter(element => element.DESC_UNID===e);
-        let area_=are.filter(element => element.id_unid===unidad_[0]['id']);
+        let unidad_=unidadesCombo.filter(element => element.desc_unid===e);
+        let area_=areasCombo.filter(element => element.id_unid===unidad_[0]['id_unid']);
         const area_prueba=[];
         for (let clave in area_){
             area_prueba.push(area_[clave].desc_area);
         };
         setAreaFilter(area_prueba)
     };
-    /*
-    const oficinas=[
-        'CUSCO MANCO INCA','CUSCO RPV','URUBAMBA','ABANCAY','MADRE DE DIOS','QUILLABAMBA','SICUANI','ESPINAR','ANDAHUAYLAS','SAN JERONIMO','CALCA','ANTA','URCOS','SANTIAGO','CHUMBIVILCAS','URIPA','CHALLHUAHUACHO','SAN SEBASTIAN','TAMBOPATA'
-    ];
-    const perfiles=[
-        'ANALISTA DE BASE DE DATOS','ASISTENTE ADMINISTRATIVO','ESPECIALISTA EN PERSONAL','ANALISTA DE ARCHIVO','JEFE ZONAL','JEFE','ANALISTA DE SISTEMAS','TECNICO EN SISTEMAS','REGISTRADOR','ASISTENTE REGISTRAL','ABOGADO CERTIFICADOR','ANALISTA CATASTRAL','CAJERO','ASISTENTE PUBLICIDAD','TECNICO EN MANTENIMIENTO','ANALISTA DE ALMACEN Y CONTROL PATRIMONIAL','ESPECIALISTA DE TESORERIA','TECNICO ADMINISTRATIVO','SECRETARIA','ASISTENTE SOCIAL','ESPECIALISTA DE BASE DE DATOS','OPERADOR DE SISTEMAS','ANALISTA DE REDES',
-    ];
-    const areas=[
-        'ASESORIA JURIDICA','CONTROL INTERNO','JEFATURA ZONAL','OCI','PRESUPUESTO','REGISTRAL','CAJA','ARCHIVO','CATASTRO','LIBRO DIARIO','MESA DE PARTES','PUBLICIDAD','UTI','INFORMES','DEFENSORIA','SEGURIDAD','ABASTECIMIENTO','TESORERIA','PERSONAL','CONTABILIDAD','ORIENTACION','ALMACEN PATRIMONIO','ADMINISTRACION','TRAMITE DOCUMENTARIO','IMAGEN','PATRIMONIO'
-    ];*/
+
+    useEffect(() => {
+        axios
+          .post(conexion, {
+            opcion: 1,
+          })
+          .then((response) => setEmpleadoFilted(response.data));
+    }, []);
+
     const listRegistrales=[
         {name:"Usuario Windows",key:'"Reg0'},
         {name:"Consulta Registral",key:'Reg1'},
@@ -318,7 +270,21 @@ const FsaV2 = () => {
         setSelectEntidades([]);
         setSelectPide([]);
         setSubmitted(false);
-    }
+        setAreaFilter([])
+    };
+    const buscarEmpleado=()=>{
+        let empleado_filted_=empleado_filted.filter(element => element.dni_empl===dni);
+        console.log(empleado_filted_);
+        if(empleado_filted_.length>0){
+            setNombre(empleado_filted_[0]['nomb_empl']);
+            setApePaterno(empleado_filted_[0]['ape_pate_empl']);
+            setApeMaterno(empleado_filted_[0]['ape_mate_empl']);
+            setOficina(empleado_filted_[0]['desc_ofic']);
+            setUnidad(empleado_filted_[0]['nomb_empl']);
+            setArea(empleado_filted_[0]['nomb_empl']);
+            setCargo(empleado_filted_[0]['nomb_empl']);
+        }
+    };
     return (
     <div className='card'>
         <div className=" table-header">
@@ -346,6 +312,11 @@ const FsaV2 = () => {
                     {submitted && dni==="" &&(
                     <small className="ml-2 p-error col-12 p-0">Falta DNI</small>)}  
                 </div>
+                <div className='col-12 md:col-4 text-left'>
+                    <Button label="Buscar" className="p-button-secondary"  onClick={buscarEmpleado} />
+                </div>
+            </div>
+            <div className="grid ml-4 mt-4 text-sm">
                 <div className='col-12 md:col-4 grid '>     
                     <label className='col-12 md:col-3 text-left font-semibold' htmlFor="nombre">Nombres :</label>
                     <InputText className={classNames({"p-invalid": submitted&& nombre===""},'col-12 md:col-8 pt-1')}
@@ -370,8 +341,6 @@ const FsaV2 = () => {
                     {submitted && apePaterno==="" &&(
                     <small className="ml-2 p-error col-12 p-0">Falta apellido paterno</small>)}  
                 </div>
-            </div>
-            <div className="grid ml-4 mt-4 text-sm">
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left font-semibold' htmlFor="apeMaterno">Apellido materno :</label>
                     <InputText className={classNames({"p-invalid": submitted&& apeMaterno===""},'col-12 md:col-8')}
@@ -384,6 +353,8 @@ const FsaV2 = () => {
                     {submitted && apeMaterno==="" &&(
                     <small className="ml-2 p-error col-12 p-0">Falta apellido materno</small>)}  
                 </div>
+            </div>
+            <div className="grid ml-4 mt-4 text-sm">
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left font-semibold' htmlFor="Correo">Correo eletrónico :</label>
                     <InputText className='col-12 md:col-8' 
@@ -404,22 +375,20 @@ const FsaV2 = () => {
                         autoFocus
                     />
                 </div>
-            </div>
-            <div className="grid ml-4 mt-4 text-sm">
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left font-semibold' htmlFor="oficina">Oficina :</label>
                     <Dropdown id="oficina" className="col-12 md:col-8 text-left"  value={oficina} options={oficinas} onChange={(e)=>setOficina(e.value)} placeholder="Ingrese oficina" filter/>
                 </div>
+            </div>
+            <div className="grid ml-4 mt-4 text-sm">
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left font-semibold' htmlFor="unidad">Unidad :</label>
-                    <Dropdown id="unidad" className="col-12 md:col-8 text-left"  value={unidad} options={unid} onChange={(e)=>loadArea(e.value)} placeholder="Ingrese unidad" filter/>
+                    <Dropdown id="unidad" className="col-12 md:col-8 text-left"  value={unidad} options={unidades} onChange={(e)=>loadArea(e.value)} placeholder="Ingrese unidad" filter/>
                 </div>
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left font-semibold' htmlFor="area">Área :</label>
                     <Dropdown id="area" className="col-12 md:col-8 text-left"  value={area} options={areaFilter} onChange={(e)=>setArea(e.value)} placeholder="Ingrese area" filter />
                 </div>
-            </div>
-            <div className="grid ml-4 mt-4 text-sm">
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left font-semibold' htmlFor="cargo">Cargo :</label>
                     <Dropdown id="cargo" className="col-12 md:col-8 text-left"  value={cargo} options={perfiles} onChange={(e)=>setCargo(e.value)} placeholder="Ingrese cargo" filter/>
