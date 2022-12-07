@@ -54,7 +54,6 @@ const Entidades = () => {
     for (let clave in empleadosCombo){
         empleados.push(empleadosCombo[clave].nombre_completo);
     };
-    console.log(empleados);
     for (let clave in oficinasCombo){
         oficinas.push(oficinasCombo[clave].desc_ofic);
     };

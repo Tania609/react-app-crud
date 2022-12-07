@@ -16,7 +16,7 @@ import axios from "axios";
 import { Document, Page, Text, View, StyleSheet ,PDFViewer,Image,Font} from '@react-pdf/renderer';
 
 const FsaV2 = () => {
-    const conexion="http://172.20.106.185:8088/desa/bd/crud_uti.php";
+    const conexion="http://172.20.106.185:8088/desa/bd/crud_mysql.php";
     const [dni,setDni]=useState("");
     const [nombre,setNombre]=useState("");
     const [apePaterno,setApePaterno]=useState("");
@@ -48,6 +48,7 @@ const FsaV2 = () => {
     const [empleados,empleadosCombo,oficinas,oficinasCombo,perfiles,perfilCombo,estados,estadosCombo,areas,areasCombo,unidades,unidadesCombo]=Entidades();
     
     const [empleado_filted,setEmpleadoFilted]=useState([]);
+    const [persona,setPersona]=useState([]);
     const loadArea=(e)=>{
         setUnidad(e)
         let unidad_=unidadesCombo.filter(element => element.desc_unid===e);
@@ -58,15 +59,6 @@ const FsaV2 = () => {
         };
         setAreaFilter(area_prueba)
     };
-
-    useEffect(() => {
-        axios
-          .post(conexion, {
-            opcion: 1,
-          })
-          .then((response) => setEmpleadoFilted(response.data));
-    }, []);
-
     const listRegistrales=[
         {name:"Usuario Windows",key:'"Reg0'},
         {name:"Consulta Registral",key:'Reg1'},
@@ -272,7 +264,27 @@ const FsaV2 = () => {
         setSubmitted(false);
         setAreaFilter([])
     };
+    const guardar=()=>{
+        axios
+            .post(conexion, {
+                opcion: 1,
+                dni_empl: dni,
+                nomb_empl: nombre,
+                ape_pate_empl: apePaterno,
+                ape_mate_empl: apePaterno,
+                correo: correo,
+                dir_ip: dirIp,
+                oficina: oficina,
+                unidad: unidad,
+                area: area,
+                cargo: cargo
+            })
+            .then((response) => (console.log(response.data)));
+    };
     const buscarEmpleado=()=>{
+        
+        guardar();
+        /*
         let empleado_filted_=empleado_filted.filter(element => element.dni_empl===dni);
         console.log(empleado_filted_);
         if(empleado_filted_.length>0){
@@ -283,8 +295,13 @@ const FsaV2 = () => {
             setUnidad(empleado_filted_[0]['nomb_empl']);
             setArea(empleado_filted_[0]['nomb_empl']);
             setCargo(empleado_filted_[0]['nomb_empl']);
-        }
+        }*/
     };
+    useEffect(() => {
+        axios.post(conexion, { opcion: 2,}).then((response) => setPersona(response.data));
+
+    }, []);
+    console.log(persona);
     return (
     <div className='card'>
         <div className=" table-header">
