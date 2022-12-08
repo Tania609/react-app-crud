@@ -16,7 +16,7 @@ import axios from "axios";
 import { Document, Page, Text, View, StyleSheet ,PDFViewer,Image,Font} from '@react-pdf/renderer';
 
 const FsaV2 = () => {
-    const conexion="http://172.20.106.185:8088/desa/bd/crud_mysql.php";
+    const conexion="http://localhost:8088/desa/bd/crud_mysql.php";
     const [dni,setDni]=useState("");
     const [nombre,setNombre]=useState("");
     const [apePaterno,setApePaterno]=useState("");
@@ -48,7 +48,7 @@ const FsaV2 = () => {
     const [empleados,empleadosCombo,oficinas,oficinasCombo,perfiles,perfilCombo,estados,estadosCombo,areas,areasCombo,unidades,unidadesCombo]=Entidades();
     
     const [empleado_filted,setEmpleadoFilted]=useState([]);
-    const [persona,setPersona]=useState([]);
+    const [usuarios,setUsuarios]=useState([]);
     const loadArea=(e)=>{
         setUnidad(e)
         let unidad_=unidadesCombo.filter(element => element.desc_unid===e);
@@ -281,9 +281,12 @@ const FsaV2 = () => {
             })
             .then((response) => (console.log(response.data)));
     };
-    const buscarEmpleado=()=>{
-        
-        guardar();
+    
+    console.log(usuarios);
+    const buscarEmpleado=async()=>{
+        await axios.post(conexion, { opcion: 2,}).then((response) => setUsuarios(response.data));
+        console.log(usuarios);
+        //guardar();
         /*
         let empleado_filted_=empleado_filted.filter(element => element.dni_empl===dni);
         console.log(empleado_filted_);
@@ -297,11 +300,8 @@ const FsaV2 = () => {
             setCargo(empleado_filted_[0]['nomb_empl']);
         }*/
     };
-    useEffect(() => {
-        axios.post(conexion, { opcion: 2,}).then((response) => setPersona(response.data));
-
-    }, []);
-    console.log(persona);
+    
+    
     return (
     <div className='card'>
         <div className=" table-header">
