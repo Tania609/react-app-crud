@@ -28,7 +28,8 @@ const FsaV2 = () => {
     const [cargo,setCargo]=useState("");
     const [dirIp,setDirIp]=useState("");
     const [sustento,setSustento]=useState("");
-    const [id_fsa,setId_fsa]=useState([]);
+    const [id_fsa,setId_fsa]=useState(0);
+    const [id_deta,setId_deta]=useState(0);
     
     const [selectSistemas,setSelectSistemas]=useState([]);
     const [autorizadoPor,setAutorizadoPor]=useState("");
@@ -59,6 +60,15 @@ const FsaV2 = () => {
                 setId_fsa(response.data)
                 else
                 setId_fsa(1)
+            })
+            .post(conexion, {
+                opcion: 4,
+            })
+            .then((response) => {
+                if(response.data!=null)
+                setId_deta(response.data)
+                else
+                setId_deta(1)
             })
     const loadArea=(e)=>{
         setUnidad(e)
@@ -276,7 +286,6 @@ const FsaV2 = () => {
         setAreaFilter([])
     };
     const guardar=async()=>{
-        const id_fsa=0;
         axios
             .post(conexion, {
                 opcion: 1,
@@ -290,11 +299,11 @@ const FsaV2 = () => {
                 unidad: unidad,
                 area: area,
                 cargo: cargo,
-                id_fsa:id_fsa,
                 sustento:sustento,
-                autorizado_por:autorizadoPor
+                autorizado_por:autorizadoPor,
+                id_fsa:id_fsa,
             })
-            .then((response) => (console.log(response.data)));
+            .then((response) => (console.log(response)));
     };
     
    
