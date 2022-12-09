@@ -28,6 +28,7 @@ const FsaV2 = () => {
     const [cargo,setCargo]=useState("");
     const [dirIp,setDirIp]=useState("");
     const [sustento,setSustento]=useState("");
+    const [id_fsa,setId_fsa]=useState([]);
     
     const [selectSistemas,setSelectSistemas]=useState([]);
     const [autorizadoPor,setAutorizadoPor]=useState("");
@@ -48,7 +49,17 @@ const FsaV2 = () => {
     const [empleados,empleadosCombo,oficinas,oficinasCombo,perfiles,perfilCombo,estados,estadosCombo,areas,areasCombo,unidades,unidadesCombo]=Entidades();
     
     const [empleado_filted,setEmpleadoFilted]=useState([]);
-    const [persona,setPersona]=useState([]);
+    const [usuarios,setUsuarios]=useState([]);
+    
+    axios.post(conexion, {
+                opcion: 3,
+            })
+            .then((response) => {
+                if(response.data!=null)
+                setId_fsa(response.data)
+                else
+                setId_fsa(1)
+            })
     const loadArea=(e)=>{
         setUnidad(e)
         let unidad_=unidadesCombo.filter(element => element.desc_unid===e);
@@ -264,7 +275,8 @@ const FsaV2 = () => {
         setSubmitted(false);
         setAreaFilter([])
     };
-    const guardar=()=>{
+    const guardar=async()=>{
+        const id_fsa=0;
         axios
             .post(conexion, {
                 opcion: 1,
@@ -277,14 +289,19 @@ const FsaV2 = () => {
                 oficina: oficina,
                 unidad: unidad,
                 area: area,
-                cargo: cargo
+                cargo: cargo,
+                id_fsa:id_fsa,
+                sustento:sustento,
+                autorizado_por:autorizadoPor
             })
             .then((response) => (console.log(response.data)));
     };
+    
+   
     const buscarEmpleado=async()=>{
-        await axios.post( conexion, { opcion: 2,}).then((response) => console.log(response));
-        console.log(persona);
-        //guardar();
+        //await axios.post(conexion, { opcion: 2,dni_empl:dni}).then((response) => setUsuarios(response.data));
+        //console.log(usuarios);
+        guardar();
         /*
         let empleado_filted_=empleado_filted.filter(element => element.dni_empl===dni);
         console.log(empleado_filted_);
@@ -298,6 +315,8 @@ const FsaV2 = () => {
             setCargo(empleado_filted_[0]['nomb_empl']);
         }*/
     };
+    
+    
     return (
     <div className='card'>
         <div className=" table-header">
@@ -327,6 +346,9 @@ const FsaV2 = () => {
                 </div>
                 <div className='col-12 md:col-4 text-left'>
                     <Button label="Buscar" className="p-button-secondary"  onClick={buscarEmpleado} />
+                </div>
+                <div className='col-12 md:col-4 text-right text-gray-500 font-semibold'>
+                    <p className="p-p m-0 text-4xl">FSA N° - {id_fsa}</p>
                 </div>
             </div>
             <div className="grid ml-4 mt-4 text-sm">
