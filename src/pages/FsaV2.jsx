@@ -50,7 +50,7 @@ const FsaV2 = () => {
     const [empleados,empleadosCombo,oficinas,oficinasCombo,perfiles,perfilCombo,estados,estadosCombo,areas,areasCombo,unidades,unidadesCombo]=Entidades();
     
     const [empleado_filted,setEmpleadoFilted]=useState([]);
-    const [usuarios,setUsuarios]=useState([]);
+    const [persona,setPersona]=useState([]);
     
     axios.post(conexion, {
                 opcion: 3,
@@ -61,7 +61,7 @@ const FsaV2 = () => {
                 else
                 setId_fsa(1)
             })
-            .post(conexion, {
+    axios.post(conexion, {
                 opcion: 4,
             })
             .then((response) => {
@@ -244,21 +244,6 @@ const FsaV2 = () => {
             );
         }
     };
-    const prueba=()=>{
-        setSubmitted(true)
-    };
-    const psipdf=()=>{
-        if(psi){
-            return(
-                <PDFDownloadLink document={PsiReport({dni,nombre,apePaterno,apeMaterno,correo,cargo,unidad,oficina,autorizadoPor,
-                    selectNotarios,selectEmpresas,selectSeguridad,selectVerificadores,selectEntidades,selectPide,
-                    mNotarios,mEmpresas,mSeguridad,mVerificadores,mEntidades,mPide})} fileName={("PSI - "+nombre+" "+apePaterno+" "+apeMaterno).toUpperCase()}>
-                    {((nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? <Button label="Falta Completar datos (PSI)" className="p-button-warning underline:none" icon="pi pi-info-circle" disabled/> : <Button label="Generar (PSI)"className="p-button-success" type="submit" icon="pi pi-file-export" onClick={prueba}/>)}
-                </PDFDownloadLink>
-                
-            )
-        }
-    };
     const clearData=()=>{
         setNombre("");
         setDni("");
@@ -285,14 +270,40 @@ const FsaV2 = () => {
         setSubmitted(false);
         setAreaFilter([])
     };
-    const guardar=async()=>{
-        axios
+    
+    const psipdf=()=>{
+        if(psi){
+            return(
+                <PDFDownloadLink document={PsiReport({dni,nombre,apePaterno,apeMaterno,correo,cargo,unidad,oficina,autorizadoPor,
+                    selectNotarios,selectEmpresas,selectSeguridad,selectVerificadores,selectEntidades,selectPide,
+                    mNotarios,mEmpresas,mSeguridad,mVerificadores,mEntidades,mPide})} fileName={("PSI - "+nombre+" "+apePaterno+" "+apeMaterno).toUpperCase()}>
+                    {((nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? <Button label="Falta Completar datos (PSI)" className="p-button-warning underline:none" icon="pi pi-info-circle" disabled/> : <Button label="Generar (PSI)"className="p-button-success" type="submit" icon="pi pi-file-export" onClick={prueba}/>)}
+                </PDFDownloadLink>
+                
+            )
+        }
+    };
+    const guardarSistemas=()=>{
+        for(let i in selectSistemas){
+            axios
+            .post(conexion, {
+                opcion: 5,
+                id_deta:id_deta,
+                nomb_sist:selectSistemas[i]['name']
+            })
+            .then((response) => (console.log(response)));
+        };
+    };
+    
+    const guardar=()=>{
+        if(dni!="" && nombre!="" && apePaterno!="" && selectSistemas.length>0){
+         axios
             .post(conexion, {
                 opcion: 1,
                 dni_empl: dni,
                 nomb_empl: nombre,
                 ape_pate_empl: apePaterno,
-                ape_mate_empl: apePaterno,
+                ape_mate_empl: apeMaterno,
                 correo: correo,
                 dir_ip: dirIp,
                 oficina: oficina,
@@ -302,15 +313,36 @@ const FsaV2 = () => {
                 sustento:sustento,
                 autorizado_por:autorizadoPor,
                 id_fsa:id_fsa,
+                id_deta:id_deta,
             })
-            .then((response) => (console.log(response)));
+            .then((response) => (guardarSistemas()));
+        }else{
+            console.log("faltan datos")
+        }
     };
     
-   
+    const prueba=async()=>{
+        setSubmitted(true);
+        await guardar();
+        clearData();
+    };
     const buscarEmpleado=async()=>{
-        //await axios.post(conexion, { opcion: 2,dni_empl:dni}).then((response) => setUsuarios(response.data));
-        //console.log(usuarios);
-        guardar();
+        await axios.post(conexion, { opcion: 2,dni_empl:dni}).then((response) => setPersona(response.data));
+        if(persona.length>0){
+            setNombre(persona[0]['nomb_empl']);
+            setApePaterno(persona[0]['ape_pate_empl']);
+            setApeMaterno(persona[0]['ape_mate_empl']);
+            setCorreo(persona[0]['correo']);
+            setDirIp(persona[0]['dir_ip']);
+            setOficina(persona[0]['oficina']);
+            setUnidad(persona[0]['unidad']);
+            setArea(persona[0]['area']);
+            setCargo(persona[0]['cargo']);
+        }else{
+            console.log("no exiete");
+        }
+        
+        
         /*
         let empleado_filted_=empleado_filted.filter(element => element.dni_empl===dni);
         console.log(empleado_filted_);
@@ -603,15 +635,16 @@ const FsaV2 = () => {
                     </div>      
                 </div>
             </div>
+            {psipdf()}
             
               <PDFDownloadLink 
                     document={FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
                     selectSistemas,autorizadoPor,autorizado})} 
                     fileName={("FSA - "+nombre+" "+apePaterno+" "+apeMaterno).toUpperCase()}
+                    onClick={prueba}
                 >
-                    {((nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? <Button label="Falta Completar datos (FSA)" className="p-button-warning underline:none" icon="pi pi-info-circle" disabled/> : <Button label="Generar (FSA)"className="p-button-success" type="submit" icon="pi pi-file-export" onClick={prueba}/>)}
+                    {((nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? <Button label="Falta Completar datos (FSA)" className="p-button-warning underline:none" icon="pi pi-info-circle" disabled/> : <Button label="Generar (FSA) y Guardar"className="p-button-success" type="submit" icon="pi pi-file-export"/>)}
                 </PDFDownloadLink>
-            {psipdf()}
         </div>   
     </div>
   )
