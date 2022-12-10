@@ -50,7 +50,8 @@ const FsaV2 = () => {
     const [empleados,empleadosCombo,oficinas,oficinasCombo,perfiles,perfilCombo,estados,estadosCombo,areas,areasCombo,unidades,unidadesCombo]=Entidades();
     
     const [empleado_filted,setEmpleadoFilted]=useState([]);
-    const [persona,setPersona]=useState([]);
+    const [personas,setPersonas]=useState([]);
+    const [sistemasFiltrados,setsistemasFiltrados]=useState([]);
     
     axios.post(conexion, {
                 opcion: 3,
@@ -60,7 +61,7 @@ const FsaV2 = () => {
                 setId_fsa(response.data)
                 else
                 setId_fsa(1)
-            })
+            });
     axios.post(conexion, {
                 opcion: 4,
             })
@@ -69,7 +70,9 @@ const FsaV2 = () => {
                 setId_deta(response.data)
                 else
                 setId_deta(1)
-            })
+            });
+    axios.post(conexion, { opcion: 2}).then((response) => setPersonas(response.data));
+
     const loadArea=(e)=>{
         setUnidad(e)
         let unidad_=unidadesCombo.filter(element => element.desc_unid===e);
@@ -295,15 +298,15 @@ const FsaV2 = () => {
         };
     };
     
-    const guardar=()=>{
+    const guardar=async()=>{
         if(dni!="" && nombre!="" && apePaterno!="" && selectSistemas.length>0){
-         axios
+         await axios
             .post(conexion, {
                 opcion: 1,
                 dni_empl: dni,
-                nomb_empl: nombre,
-                ape_pate_empl: apePaterno,
-                ape_mate_empl: apeMaterno,
+                nomb_empl: nombre.toUpperCase(),
+                ape_pate_empl: apePaterno.toUpperCase(),
+                ape_mate_empl: apeMaterno.toUpperCase(),
                 correo: correo,
                 dir_ip: dirIp,
                 oficina: oficina,
@@ -327,7 +330,7 @@ const FsaV2 = () => {
         clearData();
     };
     const buscarEmpleado=async()=>{
-        await axios.post(conexion, { opcion: 2,dni_empl:dni}).then((response) => setPersona(response.data));
+        let persona=personas.filter(element => element.dni_empl===dni);
         if(persona.length>0){
             setNombre(persona[0]['nomb_empl']);
             setApePaterno(persona[0]['ape_pate_empl']);
@@ -338,6 +341,15 @@ const FsaV2 = () => {
             setUnidad(persona[0]['unidad']);
             setArea(persona[0]['area']);
             setCargo(persona[0]['cargo']);
+            setId_fsa(persona[0]['id_fsa'])
+            await axios
+            .post(conexion, {
+                opcion: 6,
+                id_deta:persona[0]['id_deta'],
+            })
+            .then(( response) => ( setsistemasFiltrados(response.data)));
+            console.log(sistemasFiltrados);
+            console.log(persona[0]['id_deta']);
         }else{
             console.log("no exiete");
         }
@@ -389,7 +401,7 @@ const FsaV2 = () => {
                     <Button label="Buscar" className="p-button-secondary"  onClick={buscarEmpleado} />
                 </div>
                 <div className='col-12 md:col-4 text-right text-gray-500 font-semibold'>
-                    <p className="p-p m-0 text-4xl">FSA N° - {id_fsa}</p>
+                    <p className="p-p m-0 text-4xl">FSA N° {id_fsa}</p>
                 </div>
             </div>
             <div className="grid ml-4 mt-4 text-sm">
