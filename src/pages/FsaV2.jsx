@@ -16,7 +16,7 @@ import axios from "axios";
 import { Document, Page, Text, View, StyleSheet ,PDFViewer,Image,Font} from '@react-pdf/renderer';
 
 const FsaV2 = () => {
-    const conexion="http://localhost:8088/desa/bd/crud_mysql.php";
+    const conexion="http://localhost:8088/desa/bd/crud_uti.php";
     const [dni,setDni]=useState("");
     const [nombre,setNombre]=useState("");
     const [apePaterno,setApePaterno]=useState("");
@@ -28,8 +28,10 @@ const FsaV2 = () => {
     const [cargo,setCargo]=useState("");
     const [dirIp,setDirIp]=useState("");
     const [sustento,setSustento]=useState("");
-    const [id_fsa,setId_fsa]=useState(0);
-    const [id_deta,setId_deta]=useState(0);
+    const [id_fsa,setId_fsa]=useState("");
+    const [id_deta,setId_deta]=useState("");
+    const [id_empl,setId_empl]=useState("");
+    const [id_sist,setId_sist]=useState("");
     
     const [selectSistemas,setSelectSistemas]=useState([]);
     const [autorizadoPor,setAutorizadoPor]=useState("");
@@ -46,35 +48,43 @@ const FsaV2 = () => {
 
     const [submitted,setSubmitted]=useState(false);
 
-    const [areaFilter, setAreaFilter]=useState([]);
+    //const [areaFilter, setAreaFilter]=useState([]);
     const [empleados,empleadosCombo,oficinas,oficinasCombo,perfiles,perfilCombo,estados,estadosCombo,areas,areasCombo,unidades,unidadesCombo]=Entidades();
     
-    const [empleado_filted,setEmpleadoFilted]=useState([]);
     const [personas,setPersonas]=useState([]);
     const [sistemasFiltrados,setsistemasFiltrados]=useState([]);
     useEffect(() => {
         axios.post(conexion, { opcion: 2,}).then((response) => setPersonas(response.data));
     }, [personas]);
     
-    axios.post(conexion, {
-                opcion: 3,
+
+    useEffect(() => {
+        axios.post(conexion, { opcion: 21}).then((response) => setPersonas(response.data));
+    }, [personas]);
+    /*
+    useEffect(() => {
+        try{
+        axios
+            .post(conexion, {
+                opcion: 23,
+                id_empl:id_empl,
             })
-            .then((response) => {
-                if(response.data!=null)
-                setId_fsa(response.data)
-                else
-                setId_fsa(1)
-            });
-    axios.post(conexion, {
-                opcion: 4,
-            })
-            .then((response) => {
-                if(response.data!=null)
-                setId_deta(response.data)
-                else
-                setId_deta(1)
-            });
-   
+            .then((response) => (setId_fsa(response.data[0]['id_fsa'])));}
+        catch(e){
+            setId_fsa("");
+        }
+    }, [guardarFsa]);
+    */
+    useEffect(() => {
+        axios.post(conexion, {
+            opcion: 24,
+            id_fsa:id_fsa
+        })
+        .then((response) => (setId_deta(response.data))
+        );
+    }, [id_fsa]);
+    
+    /*
     const loadArea=(e)=>{
         setUnidad(e)
         let unidad_=unidadesCombo.filter(element => element.desc_unid===e);
@@ -85,6 +95,7 @@ const FsaV2 = () => {
         };
         setAreaFilter(area_prueba)
     };
+    */
     const listRegistrales=[
         {name:"Usuario Windows",key:'"Reg0'},
         {name:"Consulta Registral",key:'Reg1'},
@@ -273,7 +284,7 @@ const FsaV2 = () => {
         setSelectEntidades([]);
         setSelectPide([]);
         setSubmitted(false);
-        setAreaFilter([])
+        //setAreaFilter([])
     };
     
     const psipdf=()=>{
@@ -288,11 +299,45 @@ const FsaV2 = () => {
             )
         }
     };
-    const guardarSistemas=()=>{
-        for(let i in selectSistemas){
+   
+    function buscarFsa(_id_empl){
+        axios.post(conexion, {
+            opcion: 22,
+            id_empl:_id_empl
+        })
+        .then((response) => {
+            if(response.data.length>0){
+                setId_fsa(response.data[0]['id_fsa']);  
+            }
+        });
+    };
+
+    function buscarEmpleado(){
+        let persona=personas.filter(element => element.dni_empl===dni);
+        if(persona.length>0){
+            setId_empl(persona[0]['id_empl']);
+            setNombre(persona[0]['nomb_empl']);
+            setApePaterno(persona[0]['ape_pate_empl']);
+            setApeMaterno(persona[0]['ape_mate_empl']);
+            setCorreo(persona[0]['desc_mail']);
+            //setDirIp();
+            setOficina(persona[0]['desc_ofic']);
+            setUnidad(persona[0]['desc_unid']);
+            setArea(persona[0]['desc_area']);
+            setCargo(persona[0]['desc_perf']);
+            //ids
+            buscarFsa(persona[0]['id_empl']);
+        }else{
+            console.log("no exiete");
+        }
+    };
+   
+    async function guardarSistemas(){
+        console.log("id_deta "+id_deta);
+        for(let i in selectSistemas){    
             axios
             .post(conexion, {
-                opcion: 5,
+                opcion: 28,
                 id_deta:id_deta,
                 nomb_sist:selectSistemas[i]['name']
             })
@@ -301,79 +346,48 @@ const FsaV2 = () => {
     };
     
     const guardar=async()=>{
-        if(dni!="" && nombre!="" && apePaterno!="" && selectSistemas.length>0){
-         await axios
-            .post(conexion, {
-                opcion: 1,
-                dni_empl: dni,
-                nomb_empl: nombre.toUpperCase(),
-                ape_pate_empl: apePaterno.toUpperCase(),
-                ape_mate_empl: apeMaterno.toUpperCase(),
-                correo: correo,
-                dir_ip: dirIp,
-                oficina: oficina,
-                unidad: unidad,
-                area: area,
-                cargo: cargo,
-                sustento:sustento,
-                autorizado_por:autorizadoPor,
-                id_fsa:id_fsa,
-                id_deta:id_deta,
+        //GUARDAR FSA
+        if(id_fsa==""){
+            await axios
+            .get(conexion, {
+                opcion: 25,
+                id_empl:id_empl,
             })
-            .then((response) => (guardarSistemas()));
+            .then((response) => (console.log(response)));
+            console.log("empl "+id_empl);
+            //recuperar id fsa
+            await axios
+            .post(conexion, {
+                opcion: 23,
+                id_empl:id_empl,
+            })
+            .then((response) => (console.log(response.data)));
+            console.log("fsa "+id_fsa);
+            
         }else{
-            console.log("faltan datos")
+            buscarFsa(id_empl);
         }
+        //GUARDAR DETA
+        //console.log("fsa "+id_fsa);
+        await axios
+        .post(conexion, {
+            opcion: 26,
+            sustento:sustento,
+            autorizado_por:autorizadoPor,
+            id_fsa: id_fsa,
+        })
+        .then((response) => (console.log(response)));
+        //GUADRA SISTEMAS
+        guardarSistemas();
     };
     
     const prueba=async()=>{
         setSubmitted(true);
         await guardar();
-        clearData();
+        //clearData();
     };
     
-        useEffect(() => {
-             axios.post(conexion, { opcion: 6,
-                id_deta:id_deta,}).then((response) => setsistemasFiltrados(response.data));
     
-        }, [id_deta]);
-        
-        
-    
-    const buscarEmpleado=async()=>{
-        let persona=personas.filter(element => element.dni_empl===dni);
-        if(persona.length>0){
-            
-            setNombre(persona[0]['nomb_empl']);
-            setApePaterno(persona[0]['ape_pate_empl']);
-            setApeMaterno(persona[0]['ape_mate_empl']);
-            setCorreo(persona[0]['correo']);
-            setDirIp(persona[0]['dir_ip']);
-            setOficina(persona[0]['oficina']);
-            setUnidad(persona[0]['unidad']);
-            setArea(persona[0]['area']);
-            setCargo(persona[0]['cargo']);
-            setId_fsa(persona[0]['id_fsa'])
-            setId_deta(persona[0]['id_deta']);
-            console.log(sistemasFiltrados);
-        }else{
-            console.log("no exiete");
-        }
-        
-        
-        /*
-        let empleado_filted_=empleado_filted.filter(element => element.dni_empl===dni);
-        console.log(empleado_filted_);
-        if(empleado_filted_.length>0){
-            setNombre(empleado_filted_[0]['nomb_empl']);
-            setApePaterno(empleado_filted_[0]['ape_pate_empl']);
-            setApeMaterno(empleado_filted_[0]['ape_mate_empl']);
-            setOficina(empleado_filted_[0]['desc_ofic']);
-            setUnidad(empleado_filted_[0]['nomb_empl']);
-            setArea(empleado_filted_[0]['nomb_empl']);
-            setCargo(empleado_filted_[0]['nomb_empl']);
-        }*/
-    };
     
     
     return (
@@ -477,11 +491,11 @@ const FsaV2 = () => {
             <div className="grid ml-4 mt-4 text-sm">
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left font-semibold' htmlFor="unidad">Unidad :</label>
-                    <Dropdown id="unidad" className="col-12 md:col-8 text-left"  value={unidad} options={unidades} onChange={(e)=>loadArea(e.value)} placeholder="Ingrese unidad" filter/>
+                    <Dropdown id="unidad" className="col-12 md:col-8 text-left"  value={unidad} options={unidades} onChange={(e)=>setUnidad(e.value)} placeholder="Ingrese unidad" filter/>
                 </div>
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left font-semibold' htmlFor="area">Área :</label>
-                    <Dropdown id="area" className="col-12 md:col-8 text-left"  value={area} options={areaFilter} onChange={(e)=>setArea(e.value)} placeholder="Ingrese area" filter />
+                    <Dropdown id="area" className="col-12 md:col-8 text-left"  value={area} options={areas} onChange={(e)=>setArea(e.value)} placeholder="Ingrese area" filter />
                 </div>
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left font-semibold' htmlFor="cargo">Cargo :</label>
@@ -659,9 +673,9 @@ const FsaV2 = () => {
                     document={FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
                     selectSistemas,autorizadoPor,autorizado})} 
                     fileName={("FSA - "+nombre+" "+apePaterno+" "+apeMaterno).toUpperCase()}
-                    onClick={prueba}
+                    
                 >
-                    {((nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? <Button label="Falta Completar datos (FSA)" className="p-button-warning underline:none" icon="pi pi-info-circle" disabled/> : <Button label="Generar (FSA) y Guardar"className="p-button-success" type="submit" icon="pi pi-file-export"/>)}
+                    {((nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? <Button label="Falta Completar datos (FSA)" className="p-button-warning underline:none" icon="pi pi-info-circle" disabled/> : <Button label="Generar (FSA) y Guardar"className="p-button-success" type="submit" icon="pi pi-file-export" onClick={prueba}/>)}
                 </PDFDownloadLink>
         </div>   
     </div>

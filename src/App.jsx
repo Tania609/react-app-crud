@@ -88,8 +88,8 @@ const App = () => {
   return (
     <div className="App">
         <Routes>
-            {//<Route path="/" element={tab()}></Route>
-            }
+        <Route path="/" element={tab()}></Route>
+        
             <Route path="fsa" element={<FsaV2/>}></Route>
             <Route path="pdf" element={<Dropwdown2/>}></Route>
         </Routes>
