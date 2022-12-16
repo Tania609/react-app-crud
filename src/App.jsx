@@ -59,6 +59,7 @@ import { TabView, TabPanel } from 'primereact/tabview';
 import {Routes, Route} from 'react-router-dom';
 import FsaV2 from './pages/FsaV2';
 import Dropwdown2 from './reports/PsiReport';
+import { FsaMantenimiento } from "./pages/FsaMantenimiento";
 const App = () => {
     const tab =()=>{
         return(
@@ -88,10 +89,9 @@ const App = () => {
   return (
     <div className="App">
         <Routes>
-        <Route path="/" element={tab()}></Route>
-        
+            <Route path="/" element={tab()}></Route>
             <Route path="fsa" element={<FsaV2/>}></Route>
-            <Route path="pdf" element={<Dropwdown2/>}></Route>
+            <Route path="fsa_mantenimiento" element={<FsaMantenimiento/>}></Route>
         </Routes>
        
     
