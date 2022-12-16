@@ -320,6 +320,7 @@ const FsaV2 = () => {
                         opcion: 26,
                         sustento:sustento,
                         autorizado_por:autorizadoPor,
+                        fecha:fecha,
                         id_fsa: _id_fsa,
                     })
                     .then((response) => (console.log(response)));
@@ -369,6 +370,7 @@ const FsaV2 = () => {
                         opcion: 26,
                         sustento:sustento,
                         autorizado_por:autorizadoPor,
+                        fecha:fecha,
                         id_fsa: _id_fsa,
                     })
                     .then((response) => (console.log(response)));
