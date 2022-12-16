@@ -3,7 +3,7 @@ import logo from '../images/logo.png'
 import React from 'react'
 
 const FsaV2Report = ({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
-    selectSistemas,autorizadoPor,autorizado}) => {
+    selectSistemas,autorizadoPor,autorizado,fecha}) => {
 
     const styles = StyleSheet.create({
         page: {
@@ -66,10 +66,6 @@ const FsaV2Report = ({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,are
             fontSize:9
         },
     });
-    var today = new Date();
-    var day = today.getDate();
-    var month = today.getMonth() + 1;
-    var year = today.getFullYear();
 
     const sistemas = [];
     for (let i in selectSistemas) {
@@ -124,7 +120,7 @@ const FsaV2Report = ({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,are
                     <View style={styles.container}>
                         <Text  style={[{ fontSize: 11,marginBottom:4},styles.item50,styles.bold,styles.underline]} >1. DATOS DE LA SOLICITUD</Text>
                         <View style={[styles.item50,{fontSize: 10,flexDirection:'row-reverse',paddingRight:10,marginBottom:4}]}>
-                            <Text> {`${day}/${month}/${year}`}</Text>
+                            <Text> {fecha}</Text>
                             <Text  style={[styles.bold]} >Fecha:</Text>
                         </View>
                     </View>
@@ -217,7 +213,7 @@ const FsaV2Report = ({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,are
                     <View style={styles.container}>
                         <Text  style={[{ fontSize: 11,marginBottom:4},styles.item50,styles.bold,styles.underline]} >2. AUTORIZACIóN</Text>
                         <View style={[styles.item50,{fontSize: 10,flexDirection:'row-reverse',paddingRight:10,marginBottom:4}]}>
-                            <Text> {`${day}/${month}/${year}`}</Text>
+                            <Text> {fecha}</Text>
                             <Text  style={[styles.bold]} >Fecha:</Text>
                         </View>
                     </View>

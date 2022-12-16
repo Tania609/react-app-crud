@@ -14,6 +14,7 @@ import {PDFDownloadLink} from '@react-pdf/renderer';
 import PsiReport from "../reports/PsiReport";
 import axios from "axios";
 import { Document, Page, Text, View, StyleSheet ,PDFViewer,Image,Font} from '@react-pdf/renderer';
+import BuscarFsa from "./BuscarFsa";
 
 const FsaV2 = () => {
 
@@ -30,8 +31,8 @@ const FsaV2 = () => {
     const [cargo,setCargo]=useState("");
     const [dirIp,setDirIp]=useState("");
     const [sustento,setSustento]=useState("");
-    const [id_fsa,setId_fsa]=useState("");
-    const [id_deta,setId_deta]=useState("");
+    const [fecha,setfecha]=useState("");
+
     const [id_empl,setId_empl]=useState("");
     const [selectSistemas,setSelectSistemas]=useState([]);
     const [autorizadoPor,setAutorizadoPor]=useState("");
@@ -45,40 +46,13 @@ const FsaV2 = () => {
     const [selectPide,setSelectPide]=useState([]);
     const [submitted,setSubmitted]=useState(false);
     const [personas,setPersonas]=useState([]);
-    const [sistemasFiltrados,setsistemasFiltrados]=useState([]);
 
-    const [guardadoFsa,setguardadoFsa]=useState([]);
-    const [guardadoDeta,setGuardadoDeta]=useState([]);
     //const [areaFilter, setAreaFilter]=useState([]);
     const [empleados,empleadosCombo,oficinas,oficinasCombo,perfiles,perfilCombo,estados,estadosCombo,areas,areasCombo,unidades,unidadesCombo]=Entidades();
-    
     useEffect(() => {
         axios.post(conexion, { opcion: 21}).then((response) => setPersonas(response.data));
     }, [personas]);
-    /*
-    useEffect(() => {
-        try{
-        axios
-            .post(conexion, {
-                opcion: 23,
-                id_empl:id_empl,
-            })
-            .then((response) => (setId_fsa(response.data[0]['id_fsa'])));}
-        catch(e){
-            setId_fsa("");
-        }
-    }, [guardarFsa]);
-    */
-    useEffect(() => {
-        //recuperar el ultimo id_detalla guardado
-        axios.post(conexion, {
-            opcion: 24,
-            id_fsa:id_fsa
-        })
-        .then((response) => (setId_deta(response.data))
-        );
-    }, [guardadoFsa]);
-    
+   
     /*
     const loadArea=(e)=>{
         setUnidad(e)
@@ -91,6 +65,15 @@ const FsaV2 = () => {
         setAreaFilter(area_prueba)
     };
     */
+    const generarFecha=()=>{
+        var today = new Date();
+        var day = today.getDate();
+        var month = today.getMonth() + 1;
+        var year = today.getFullYear();
+        var fecha_=(day+"/"+month+"/"+year).toString();
+        setfecha(fecha_);
+    }
+    
     const listRegistrales=[
         {name:"Usuario Windows",key:'"Reg0'},
         {name:"Consulta Registral",key:'Reg1'},
@@ -295,22 +278,10 @@ const FsaV2 = () => {
         }
     };
    
-    function buscarFsa(_id_empl){
-        axios.post(conexion, {
-            opcion: 22,
-            id_empl:_id_empl
-        })
-        .then((response) => {
-            //existe fsa para empleado
-            if(response.data.length>0){
-                setId_fsa(response.data[0]['id_fsa']);  
-            }
-        });
-    };
-
     function buscarEmpleado(){
         let persona=personas.filter(element => element.dni_empl===dni);
         if(persona.length>0){
+            generarFecha();
             setId_empl(persona[0]['id_empl']);
             setNombre(persona[0]['nomb_empl']);
             setApePaterno(persona[0]['ape_pate_empl']);
@@ -321,57 +292,117 @@ const FsaV2 = () => {
             setUnidad(persona[0]['desc_unid']);
             setArea(persona[0]['desc_area']);
             setCargo(persona[0]['desc_perf']);
-            //TIENES FSA?
-            buscarFsa(persona[0]['id_empl']);
         }else{
             console.log("no existe empleado");
         }
     };
-   
-    async function guardarSistemas(_id_deta){
-        for(let i in selectSistemas){    
-            axios
-            .post(conexion, {
-                opcion: 28,
-                id_deta:_id_deta,
-                nomb_sist:selectSistemas[i]['name']
-            })
-            .then((response) => (console.log(response)));
-        };
-    };
-    
+
     const guardar=async()=>{
-        if(id_fsa===""){
-            //GUARDAR NUEVO FSA
-            await axios
-            .post(conexion, {
-                opcion: 25,
-                id_empl:id_empl,
-            })
-            .then((response) => (console.log(response)));
-            //recuperar id_fsa del nuevo
-            await axios
-            .post(conexion, {
-                opcion: 23,
-                id_empl:id_empl,
-            })
-            .then((response) => (setId_fsa(response.data)));
-        }
-        console.log("fsa "+id_fsa);
-        //GUARDAR DETALLE
-        await axios
-        .post(conexion, {
-            opcion: 26,
-            sustento:sustento,
-            autorizado_por:autorizadoPor,
-            id_fsa: id_fsa,
+        axios.post(conexion, {
+            opcion: 22,
+            id_empl:id_empl
         })
-        .then((response) => (console.log(response)));
+        .then(async (response) => {
+            console.log(response.data)
+            if(response.data.length>0){
+                console.log("existe");
+                //recuperar id_fsa
+                await axios
+                .post(conexion, {
+                    opcion: 23,
+                    id_empl:id_empl,
+                })
+                .then(async(response2) => {
+                    //GUARDAR DETALLE
+                    const _id_fsa=response2.data;
+                    await axios
+                    .post(conexion, {
+                        opcion: 26,
+                        sustento:sustento,
+                        autorizado_por:autorizadoPor,
+                        id_fsa: _id_fsa,
+                    })
+                    .then((response) => (console.log(response)));
+                    console.log("id fsa "+_id_fsa)
+                    //recuperar id deta
+                    await axios.post(conexion, {
+                        opcion: 24,
+                        id_fsa:_id_fsa
+                    })
+                    .then(async(response3) => {
+                        const _id_deta=response3.data;
+                        console.log("id_deta "+_id_deta)
+                        for(let i in selectSistemas){    
+                            await axios
+                            .post(conexion, {
+                                opcion: 28,
+                                id_deta:_id_deta,
+                                nomb_sist:selectSistemas[i]['name']
+                            })
+                            .then((response) => (console.log(response)));
+                        };
+                    });
+                }); 
+            }else{
+                console.log("no existe");
+                //no existe empleado
+                //GUARDAR NUEVO FSA
+                await axios
+                .post(conexion, {
+                    opcion: 25,
+                    id_empl:id_empl,
+                })
+                .then((response) => {
+                    console.log(response)
+                });
+                //recuperar id_fsa
+                await axios
+                .post(conexion, {
+                    opcion: 23,
+                    id_empl:id_empl,
+                })
+                .then(async(response2) => {
+                    //GUARDAR DETALLE
+                    const _id_fsa=response2.data;
+                    await axios
+                    .post(conexion, {
+                        opcion: 26,
+                        sustento:sustento,
+                        autorizado_por:autorizadoPor,
+                        id_fsa: _id_fsa,
+                    })
+                    .then((response) => (console.log(response)));
+                    console.log("id fsa "+_id_fsa)
+                    //recuperar id deta
+                    await axios.post(conexion, {
+                        opcion: 24,
+                        id_fsa:_id_fsa
+                    })
+                    .then(async(response3) => {
+                        const _id_deta=response3.data;
+                        console.log("id_deta "+_id_deta)
+                        for(let i in selectSistemas){    
+                            await axios
+                            .post(conexion, {
+                                opcion: 28,
+                                id_deta:_id_deta,
+                                nomb_sist:selectSistemas[i]['name']
+                            })
+                            .then((response) => (console.log(response)));
+                        };
+                    });
+                });
+            }
+           
+        });
+        /*
+        
         //recuperar ultimo id_deta guardado
         setguardadoFsa(true);
         //GUADRA SISTEMAS
         console.log("id_deta "+id_deta);
         guardarSistemas(id_deta);
+        */
     };
     
     const prueba=async()=>{
@@ -414,7 +445,7 @@ const FsaV2 = () => {
                     <Button label="Buscar" className="p-button-secondary"  onClick={buscarEmpleado} />
                 </div>
                 <div className='col-12 md:col-4 text-right text-gray-500 font-semibold'>
-                    <p className="p-p m-0 text-4xl">FSA N° {id_fsa}</p>
+                    <p className="p-p m-0 text-xl">{fecha}</p>
                 </div>
             </div>
             <div className="grid ml-4 mt-4 text-sm">
@@ -664,7 +695,7 @@ const FsaV2 = () => {
             
               <PDFDownloadLink 
                     document={FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
-                    selectSistemas,autorizadoPor,autorizado})} 
+                    selectSistemas,autorizadoPor,autorizado,fecha})} 
                     fileName={("FSA - "+nombre+" "+apePaterno+" "+apeMaterno).toUpperCase()}
                     
                 >
