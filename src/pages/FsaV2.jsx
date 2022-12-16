@@ -16,7 +16,9 @@ import axios from "axios";
 import { Document, Page, Text, View, StyleSheet ,PDFViewer,Image,Font} from '@react-pdf/renderer';
 
 const FsaV2 = () => {
+
     const conexion="http://localhost:8088/desa/bd/crud_uti.php";
+    //datos personales
     const [dni,setDni]=useState("");
     const [nombre,setNombre]=useState("");
     const [apePaterno,setApePaterno]=useState("");
@@ -31,33 +33,25 @@ const FsaV2 = () => {
     const [id_fsa,setId_fsa]=useState("");
     const [id_deta,setId_deta]=useState("");
     const [id_empl,setId_empl]=useState("");
-    const [id_sist,setId_sist]=useState("");
-    
     const [selectSistemas,setSelectSistemas]=useState([]);
     const [autorizadoPor,setAutorizadoPor]=useState("");
-
     const [autorizado, setAutorizado]=useState("Jefe");
     const [psi,setPsi]=useState(false);
-
     const [selectNotarios,setSelectNotarios]=useState([]);
     const [selectEmpresas,setSelectEmpresas]=useState([]);
     const [selectSeguridad,setSelectSeguridad]=useState([]);
     const [selectVerificadores,setSelectVerificadores]=useState([]);
     const [selectEntidades,setSelectEntidades]=useState([]);
     const [selectPide,setSelectPide]=useState([]);
-
     const [submitted,setSubmitted]=useState(false);
+    const [personas,setPersonas]=useState([]);
+    const [sistemasFiltrados,setsistemasFiltrados]=useState([]);
 
+    const [guardadoFsa,setguardadoFsa]=useState([]);
+    const [guardadoDeta,setGuardadoDeta]=useState([]);
     //const [areaFilter, setAreaFilter]=useState([]);
     const [empleados,empleadosCombo,oficinas,oficinasCombo,perfiles,perfilCombo,estados,estadosCombo,areas,areasCombo,unidades,unidadesCombo]=Entidades();
     
-    const [personas,setPersonas]=useState([]);
-    const [sistemasFiltrados,setsistemasFiltrados]=useState([]);
-    useEffect(() => {
-        axios.post(conexion, { opcion: 2,}).then((response) => setPersonas(response.data));
-    }, [personas]);
-    
-
     useEffect(() => {
         axios.post(conexion, { opcion: 21}).then((response) => setPersonas(response.data));
     }, [personas]);
@@ -76,13 +70,14 @@ const FsaV2 = () => {
     }, [guardarFsa]);
     */
     useEffect(() => {
+        //recuperar el ultimo id_detalla guardado
         axios.post(conexion, {
             opcion: 24,
             id_fsa:id_fsa
         })
         .then((response) => (setId_deta(response.data))
         );
-    }, [id_fsa]);
+    }, [guardadoFsa]);
     
     /*
     const loadArea=(e)=>{
@@ -306,6 +301,7 @@ const FsaV2 = () => {
             id_empl:_id_empl
         })
         .then((response) => {
+            //existe fsa para empleado
             if(response.data.length>0){
                 setId_fsa(response.data[0]['id_fsa']);  
             }
@@ -325,20 +321,19 @@ const FsaV2 = () => {
             setUnidad(persona[0]['desc_unid']);
             setArea(persona[0]['desc_area']);
             setCargo(persona[0]['desc_perf']);
-            //ids
+            //TIENES FSA?
             buscarFsa(persona[0]['id_empl']);
         }else{
-            console.log("no exiete");
+            console.log("no existe empleado");
         }
     };
    
-    async function guardarSistemas(){
-        console.log("id_deta "+id_deta);
+    async function guardarSistemas(_id_deta){
         for(let i in selectSistemas){    
             axios
             .post(conexion, {
                 opcion: 28,
-                id_deta:id_deta,
+                id_deta:_id_deta,
                 nomb_sist:selectSistemas[i]['name']
             })
             .then((response) => (console.log(response)));
@@ -346,29 +341,24 @@ const FsaV2 = () => {
     };
     
     const guardar=async()=>{
-        //GUARDAR FSA
-        if(id_fsa==""){
+        if(id_fsa===""){
+            //GUARDAR NUEVO FSA
             await axios
-            .get(conexion, {
+            .post(conexion, {
                 opcion: 25,
                 id_empl:id_empl,
             })
             .then((response) => (console.log(response)));
-            console.log("empl "+id_empl);
-            //recuperar id fsa
+            //recuperar id_fsa del nuevo
             await axios
             .post(conexion, {
                 opcion: 23,
                 id_empl:id_empl,
             })
-            .then((response) => (console.log(response.data)));
-            console.log("fsa "+id_fsa);
-            
-        }else{
-            buscarFsa(id_empl);
+            .then((response) => (setId_fsa(response.data)));
         }
-        //GUARDAR DETA
-        //console.log("fsa "+id_fsa);
+        console.log("fsa "+id_fsa);
+        //GUARDAR DETALLE
         await axios
         .post(conexion, {
             opcion: 26,
@@ -377,8 +367,11 @@ const FsaV2 = () => {
             id_fsa: id_fsa,
         })
         .then((response) => (console.log(response)));
+        //recuperar ultimo id_deta guardado
+        setguardadoFsa(true);
         //GUADRA SISTEMAS
-        guardarSistemas();
+        console.log("id_deta "+id_deta);
+        guardarSistemas(id_deta);
     };
     
     const prueba=async()=>{
