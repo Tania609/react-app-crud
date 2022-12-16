@@ -346,7 +346,7 @@ const FsaV2 = () => {
         //GUARDAR FSA
         if(id_fsa==""){
             await axios
-            .get(conexion, {
+            .post(conexion, {
                 opcion: 25,
                 id_empl:id_empl,
             })
@@ -358,7 +358,7 @@ const FsaV2 = () => {
                 opcion: 23,
                 id_empl:id_empl,
             })
-            .then((response) => (console.log(response.data)));
+            .then((response) => (setId_fsa(response.data)));
             console.log("fsa "+id_fsa);
             
         }else{
