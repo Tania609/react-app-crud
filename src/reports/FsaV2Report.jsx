@@ -190,7 +190,7 @@ const FsaV2Report = ({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,are
                             <View style={styles.item50}>
                                 <View style={styles.container}>
                                     <View style={[{border:1,width:'20%',paddingTop:8,paddingBottom:3},]}>
-                                        <Text  style={[styles.textItems,styles.marginAuto]} >Nro</Text>
+                                        <Text  style={[styles.textItems,styles.marginAuto]} >NRO</Text>
                                     </View>
                                     <View style={[styles.item70,{borderRight:1,borderBottom:1,borderTop:1,paddingTop:8,paddingBottom:3}]}>
                                         <Text  style={[{paddingLeft:5},styles.textItems]} >SISTEMA</Text>

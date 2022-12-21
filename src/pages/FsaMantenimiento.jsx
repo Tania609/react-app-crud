@@ -8,6 +8,8 @@ import { InputText } from "primereact/inputtext";
 import { FileUpload } from 'primereact/fileupload';
 import { Toast } from 'primereact/toast';
 import DialogComponent from "../context/DialogComponent";
+import { PDFDownloadLink} from '@react-pdf/renderer';
+import CargoFsa from "../reports/CargoFsa";
 export const FsaMantenimiento = () => {
     const conexion="http://localhost:8088/desa/bd/crud_uti.php";
     const [empleadosFsa, setEmpleadosFsa] = useState([]);
@@ -21,7 +23,28 @@ export const FsaMantenimiento = () => {
     
     const [hideDialog,editEntidad,confirmDeleteEEntidad,findIndexById,onInputChange,actionBodyTemplate,entidad,setEntidad,
       setEntidadDialog,setSubmitted,entidadDialog,submitted]=DialogComponent();
-
+    
+      const Template = (rowData) => {
+        console.log(rowData)
+        return (
+          <React.Fragment>
+            <Button
+              icon="pi pi-pencil"
+              className=" p-button-success mr-2"
+              onClick={() => editEntidad(rowData)}
+            />
+            <PDFDownloadLink document={CargoFsa({})} fileName={("Cargo - "+rowData.nombre_completo).toUpperCase()}>
+                    {<Button
+              icon="pi pi-file-pdf"
+              label="Generar cargo"
+              className="p-button-success mr-2"
+              
+            />}
+                </PDFDownloadLink>
+            
+          </React.Fragment>
+        );
+    };
     const estadoBody=(rowData)=>{
       if(rowData['estado']==='N'){
         return(
@@ -40,54 +63,65 @@ export const FsaMantenimiento = () => {
 
     const columnasTabla=()=>{
         return[
-            <Column key="user_fsa" field="id_fsa" sortable header="ID_FSA"></Column>,
+            <Column key="user_fsa" field="id_fsa" sortable header="ID fSA" style={{ width: "2rem" }}></Column>,
             <Column key="user_fsa" field="dni_empl" sortable header="DNI"></Column>,
             <Column key="user_fsa" field="nombre_completo" sortable header="EMPLEADO"></Column>,
             <Column key="user_fsa" field="desc_ofic" sortable header="OFICINA"></Column>, 
-            <Column key="user_fsa" field="id_deta" sortable header="ID_DETALLE"></Column>,  
+            <Column key="user_fsa" field="id_deta" sortable header="ID DETALLE" style={{ width: "2rem" }}></Column>,  
             <Column key="user_fsa" field="fecha" sortable header="FECHA"></Column>,  
             <Column key="user_fsa" field="estado" sortable header="ESTADO"
               body={estadoBody}  
             >
             </Column>,  
             <Column key="user_fsa" header="ACCION"
-                body={actionBodyTemplate}
+                body={Template}
                 exportable={false}
                 style={{ minWidth: "8rem" }}
             ></Column>   
         ]
     }
-    const viewSsitemas=(_id_deta)=>{
+    const viewSitemas=(_id_deta)=>{
+      if(entidadDialog){
+      var aux="";
       axios
       .post(conexion, {
           opcion: 30,
           id_deta:_id_deta,
       })
       .then((response) => {
-        const sistemas_=response.data;
-        return[
-        
-             <span className="text-green-500">AUTORIZADO</span>
-          
-        ];
-      }); 
-    } 
-    const onUpload = () => {
-      toast.current.show({severity: 'info', summary: 'Success', detail: 'File Uploaded'});
-      
-    }
-  const customBase64Uploader = async (event) => {
-      // convert file to base64 encoded
-      const file = event.files[0];
-      const reader = new FileReader();
-      let blob = await fetch(file.objectURL).then(r => r.blob()); //blob:url
-      reader.readAsDataURL(blob);
-      console.log(blob);
-      reader.onloadend = function () {
-          const base64data = reader.result;
-          console.log(base64data);
+        const sis=response.data
+        for(let i in sis){
+          aux+= `<li>${sis[i]['nomb_sist']}</li>`
+        }
+        document.getElementById("sistemas").innerHTML=aux;
+        }); 
       }
-  }
+    };
+    const customBase64Uploader = async (event) => {
+      var file = event.files[0];
+      const reader = new FileReader();
+        reader.onload = function(e) {
+            const blob = new Blob([new Uint8Array(e.target.result)], {type: file.type });
+            console.log(blob);
+            axios.post(conexion, 
+              { opcion: 31,id_deta:entidad.id_deta,pdf_imagen:blob},
+            )
+            .then((response) => console.log(response.data));
+        };
+        reader.readAsArrayBuffer(file);
+          /*
+          //guardar
+          axios.post(conexion, 
+            { opcion: 31,id_deta:entidad.id_deta,pdf_imagen:blob})
+          .then((response) => console.log(response.data));
+          */
+         /*
+          axios.post(conexion, 
+            { opcion: 32,id_deta:entidad.id_deta})
+          .then((response) => console.log(response.data));
+          */
+        
+    }
     const dialogItens=()=>{     
       return[
         <div className="field" key="sustento_fsa">
@@ -107,19 +141,27 @@ export const FsaMantenimiento = () => {
         />
       </div>,
       <div className="field" key="sistemas_fsa">
-       
+        <p>Sistemas</p>
+        <ul id="sistemas" className="text-gray-400">
+          {viewSitemas(entidad.id_deta)}
+        </ul>
       </div>,
       <div  className="field" key="file_fsa">
-      
-                <h5>Advanced</h5>
-                <FileUpload name="demo[]" url="https://primefaces.org/primereact/showcase/upload.php" onUpload={onUpload} multiple accept="pdf/*" maxFileSize={1000000}
-                    emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>} />
-
-<h5>Custom (base64 encoded)</h5>
-                <FileUpload mode="basic" name="demo[]" url="https://primefaces.org/primereact/showcase/upload.php" accept="image/*" customUpload uploadHandler={customBase64Uploader} />
+        <p>Subir FSA Firmado</p>
+        <FileUpload 
+          name="demo" 
+          accept="pdf/*" 
+          maxFileSize={1000000}
+          customUpload 
+          uploadHandler={customBase64Uploader}
+          chooseOptions={chooseOptions} uploadOptions={uploadOptions} cancelOptions={cancelOptions}
+          emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>} />
       </div>,
       ];
   };
+  const chooseOptions = {label:"Agregar",className: 'custom-choose-btn p-button-rounded p-button-outlined'};
+  const uploadOptions = {label:"Subir", className: 'custom-upload-btn p-button-success p-button-rounded p-button-outlined'};
+  const cancelOptions = {label:"Cancelar", className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined'};
   return (
     <div>
         <DataTableComponent 
@@ -129,7 +171,7 @@ export const FsaMantenimiento = () => {
         ></DataTableComponent>   
         <Dialog
                 visible={entidadDialog}
-                style={{ width: "450px" }}
+                style={{ width: "550px" }}
                 header="Detalle FSA"
                 modal
                 className="p-fluid"
