@@ -18,7 +18,7 @@ import BuscarFsa from "./BuscarFsa";
 
 const FsaV2 = () => {
 
-    const conexion="http://localhost:8088/desa/bd/crud_uti.php";
+    const conexion="http://172.20.106.185:8088/desa/bd/crud_uti.php";
     //datos personales
     const [dni,setDni]=useState("");
     const [nombre,setNombre]=useState("");

@@ -11,7 +11,7 @@ import DialogComponent from "../context/DialogComponent";
 import { PDFDownloadLink} from '@react-pdf/renderer';
 import CargoFsa from "../reports/CargoFsa";
 export const FsaMantenimiento = () => {
-    const conexion="http://localhost:8088/desa/bd/crud_uti.php";
+    const conexion="http://172.20.106.185:8088/desa/bd/crud_uti.php";
     const [empleadosFsa, setEmpleadosFsa] = useState([]);
     const [detallesFsa, setDetallesFsa] = useState([]);
     const [sistemas, setSistemas]=useState([]);
@@ -23,42 +23,63 @@ export const FsaMantenimiento = () => {
     
     const [hideDialog,editEntidad,confirmDeleteEEntidad,findIndexById,onInputChange,actionBodyTemplate,entidad,setEntidad,
       setEntidadDialog,setSubmitted,entidadDialog,submitted]=DialogComponent();
-    
-      const Template = (rowData) => {
-        console.log(rowData)
+    /*
+    const [hideDialogCargo,editEntidadCargo,confirmDeleteEEntidadCargo,findIndexByIdCargo,onInputChangeCargo,actionBodyTemplateCargo,entidadCargo,setEntidadCargo,
+        setEntidadDialogCargo,setSubmittedCargo,entidadDialogCargo,submittedCargo]=DialogComponent();
+    */
+      /*<Button
+                label="Cargo"
+                icon="pi pi-pencil"
+                className=" p-button-success mr-2"
+                onClick={() => editEntidadCargo(rowData)}
+                /> 
+                <Dialog
+                visible={entidadDialogCargo}
+                style={{ width: "550px" }}
+                header="Detalle Cargo"
+                modal
+                className="p-fluid"
+                //footer={empleadoDialogFooter}
+                onHide={hideDialogCargo}
+            >
+                {dialogItensCargo()}
+            </Dialog> 
+                */
+    const Template = (rowData) => {
+       // console.log(rowData)
         return (
-          <React.Fragment>
-            <Button
-              icon="pi pi-pencil"
-              className=" p-button-success mr-2"
-              onClick={() => editEntidad(rowData)}
-            />
-            <PDFDownloadLink document={CargoFsa({})} fileName={("Cargo - "+rowData.nombre_completo).toUpperCase()}>
-                    {<Button
-              icon="pi pi-file-pdf"
-              label="Generar cargo"
-              className="p-button-success mr-2"
-              
-            />}
+            <React.Fragment>
+                <Button
+                icon="pi pi-pencil"
+                className=" p-button-success mr-2"
+                onClick={() => editEntidad(rowData)}
+                />
+                <PDFDownloadLink 
+                    document={CargoFsa({})} 
+                    fileName={("Cargo - "+rowData.nombre_completo).toUpperCase()}>
+                    {   <Button
+                        icon="pi pi-file-pdf"
+                        label="cargo"
+                        className="p-button-success mr-2" 
+                    />}
                 </PDFDownloadLink>
-            
-          </React.Fragment>
+            </React.Fragment>
         );
     };
     const estadoBody=(rowData)=>{
-      if(rowData['estado']==='N'){
-        return(
-          <React.Fragment>
-           <span className="text-red-500"> NO AUTORIZADO</span>
-          </React.Fragment>
-        )
-      }else{
-        return(
-          <React.Fragment>
-             <span className="text-green-500">AUTORIZADO</span>
-          </React.Fragment>
-        )
-      }
+        if(rowData['estado']==='N'){
+            return(
+            <React.Fragment>
+            <span className="text-red-500"> NO AUTORIZADO</span>
+            </React.Fragment>
+            )
+        }else{
+            return(
+            <React.Fragment>
+                <span className="text-green-500">AUTORIZADO</span>
+            </React.Fragment>
+            )
+        }
     };
 
     const columnasTabla=()=>{
@@ -81,24 +102,41 @@ export const FsaMantenimiento = () => {
         ]
     }
     const viewSitemas=(_id_deta)=>{
-      if(entidadDialog){
-      var aux="";
-      axios
-      .post(conexion, {
-          opcion: 30,
-          id_deta:_id_deta,
-      })
-      .then((response) => {
-        const sis=response.data
-        for(let i in sis){
-          aux+= `<li>${sis[i]['nomb_sist']}</li>`
+        if(entidadDialog){
+            var aux="";
+            axios
+            .post(conexion, {
+                opcion: 30,
+                id_deta:_id_deta,
+        })
+        .then((response) => { 
+
+              
+            const sis=response.data
+            for(let i in sis){
+                aux+= `<li>${sis[i]['nomb_sist']}</li>`
+            }
+            document.getElementById("sistemas").innerHTML=aux;
+            }); 
         }
-        document.getElementById("sistemas").innerHTML=aux;
-        }); 
-      }
     };
+    function readFile(event) {
+        console.log(event.target.result);
+      }
     const customBase64Uploader = async (event) => {
-      var file = event.files[0];
+        var file = event.files[0];
+        console.log(file);
+        var reader = new FileReader();
+        reader.addEventListener('load', readFile);
+        reader.readAsText(file);
+      /*
+      formData.append("image", imagefile.files[0]);
+        axios.post(conexion,{opcion:33}, {
+            headers: {
+            'Content-Type': 'multipart/form-data'
+            }
+        })*/
+      /*BLOB :/
       const reader = new FileReader();
         reader.onload = function(e) {
             const blob = new Blob([new Uint8Array(e.target.result)], {type: file.type });
@@ -109,6 +147,7 @@ export const FsaMantenimiento = () => {
             .then((response) => console.log(response.data));
         };
         reader.readAsArrayBuffer(file);
+        */
           /*
           //guardar
           axios.post(conexion, 
@@ -123,53 +162,65 @@ export const FsaMantenimiento = () => {
         
     }
     const dialogItens=()=>{     
-      return[
-        <div className="field" key="sustento_fsa">
-          <label htmlFor="usuario">Sustento</label>
-          <InputText
-              id="usuario"
-              value={entidad.sustento || ""}
-              disabled
-          />
-      </div>,
-      <div className="field" key="autorizado_fsa">
-        <label htmlFor="usuario">Autorizado por</label>
-        <InputText
-            id="usuario"
-            value={entidad.autorizado_por || ""}
-            disabled
-        />
-      </div>,
-      <div className="field" key="sistemas_fsa">
-        <p>Sistemas</p>
-        <ul id="sistemas" className="text-gray-400">
-          {viewSitemas(entidad.id_deta)}
-        </ul>
-      </div>,
-      <div  className="field" key="file_fsa">
-        <p>Subir FSA Firmado</p>
-        <FileUpload 
-          name="demo" 
-          accept="pdf/*" 
-          maxFileSize={1000000}
-          customUpload 
-          uploadHandler={customBase64Uploader}
-          chooseOptions={chooseOptions} uploadOptions={uploadOptions} cancelOptions={cancelOptions}
-          emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>} />
-      </div>,
-      ];
-  };
-  const chooseOptions = {label:"Agregar",className: 'custom-choose-btn p-button-rounded p-button-outlined'};
-  const uploadOptions = {label:"Subir", className: 'custom-upload-btn p-button-success p-button-rounded p-button-outlined'};
-  const cancelOptions = {label:"Cancelar", className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined'};
-  return (
-    <div>
-        <DataTableComponent 
+        return[
+            <div className="field" key="sustento_fsa">
+            <label htmlFor="usuario">Sustento</label>
+            <InputText
+                id="usuario"
+                value={entidad.sustento || ""}
+                disabled
+            />
+        </div>,
+        <div className="field" key="autorizado_fsa">
+            <label htmlFor="usuario">Autorizado por</label>
+            <InputText
+                id="usuario"
+                value={entidad.autorizado_por || ""}
+                disabled
+            />
+        </div>,
+        <div className="field" key="sistemas_fsa">
+            <p>Sistemas</p>
+            <ul id="sistemas" className="text-gray-400">
+            {viewSitemas(entidad.id_deta)}
+            </ul>
+        </div>,
+        <div  className="field" key="file_fsa">
+            <p>Subir FSA Firmado</p>
+            <FileUpload 
+            name="demo" 
+            accept="pdf/*" 
+            maxFileSize={1000000}
+            customUpload 
+            uploadHandler={customBase64Uploader}
+            chooseOptions={chooseOptions} uploadOptions={uploadOptions} cancelOptions={cancelOptions}
+            emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>} />
+        </div>,
+        ];
+    };
+    const dialogItensCargo=()=>{     
+        return[
+            <div className="field" key="correo_fsa">
+            <label htmlFor="usuario">Correo</label>
+            <InputText
+                id="usuario"
+                placeholder="Ingresar correo"
+                type="email"
+            />
+        </div>,
+        ];
+    };
+    const chooseOptions = {label:"Agregar",className: 'custom-choose-btn p-button-rounded p-button-outlined'};
+    const uploadOptions = {label:"Subir", className: 'custom-upload-btn p-button-success p-button-rounded p-button-outlined'};
+    const cancelOptions = {label:"Cancelar", className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined'};
+    return (
+        <div>
+            <DataTableComponent 
                 entidades={empleadosFsa} 
                 columnasTabla={columnasTabla()}
                 dataKey="id_empl"
-        ></DataTableComponent>   
-        <Dialog
+            ></DataTableComponent>   
+            <Dialog
                 visible={entidadDialog}
                 style={{ width: "550px" }}
                 header="Detalle FSA"
@@ -180,6 +231,7 @@ export const FsaMantenimiento = () => {
             >
                 {dialogItens()}
             </Dialog> 
-    </div>
+            
+        </div>
   )
 }

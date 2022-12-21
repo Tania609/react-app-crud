@@ -62,6 +62,7 @@ import Dropwdown2 from './reports/PsiReport';
 import { FsaMantenimiento } from "./pages/FsaMantenimiento";
 import BuscarFsa from "./pages/BuscarFsa";
 import CargoFsa from "./reports/CargoFsa";
+import FsaSistemas from "./pages/FsaSistemas";
 const App = () => {
     const tab =()=>{
         return(
@@ -96,6 +97,7 @@ const App = () => {
             <Route path="fsa_mantenimiento" element={<FsaMantenimiento/>}></Route>
             <Route path="fsa_subir" element={<BuscarFsa/>}></Route>
             <Route path="cargo" element={<CargoFsa/>}></Route>
+            <Route path="prueba" element={<FsaSistemas/>}></Route>
         </Routes>
        
     
