@@ -124,11 +124,19 @@ export const FsaMantenimiento = () => {
         console.log(event.target.result);
       }
     const customBase64Uploader = async (event) => {
-        var file = event.files[0];
+        var archivo = event.files[0];
+        let archivoNombre=archivo.name;
+        let xhr=new XMLHttpRequest();
+        xhr.open("POST","http://172.20.106.185:8088/desa/bd/prueba.php");
+        var datos = new FormData();
+        datos.append("file", archivo);
+        xhr.send(datos);
+        /*
         console.log(file);
         var reader = new FileReader();
         reader.addEventListener('load', readFile);
         reader.readAsText(file);
+        */
       /*
       formData.append("image", imagefile.files[0]);
         axios.post(conexion,{opcion:33}, {
