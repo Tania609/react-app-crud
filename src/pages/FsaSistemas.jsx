@@ -1,32 +1,32 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { FileUpload } from 'primereact/fileupload';
 const FsaSistemas = () => {
-  async function SavePhoto(inp) 
-{
-  console.log("hi")
-    let user = { name:'john', age:34 };
-    let formData = new FormData();
-    let photo = inp.files[0];      
-         
-    formData.append("photo", photo);
-    formData.append("user", JSON.stringify(user)); 
+  const customBase64Uploader = async (event) => {
+    var file = event.files[0];
+    console.log(file);
+    const data=new FormData();
+    data.append('archivo',file);
+    console.log(data);
+    axios.post("http://localhost:8088/desa/bd/imagen.php", data,
+    {
+      'Content-Type': 'multipart/form-data'
+    }).then((response) => console.log(response));
+  }
     
-    const ctrl = new AbortController()    // timeout
-    setTimeout(() => ctrl.abort(), 5000);
-    
-    try {
-       let r = await fetch('/upload/image', 
-         {method: "POST", body: formData, signal: ctrl.signal}); 
-       console.log('HTTP response code:',r.status); 
-    } catch(e) {
-       console.log('Huston we have problem...:', e);
-    }
-    
-}
+
   return (
-    <div>
-        <input id="image-file" type="file" onchange={SavePhoto()} />
-    </div>
+    <div  className="field" key="file_fsa">
+            <p>Subir FSA Firmado</p>
+            <FileUpload 
+            name="archivo"
+            multiple="multiple"
+            accept="pdf/*" 
+            maxFileSize={1000000}
+            customUpload 
+            uploadHandler={customBase64Uploader}
+            emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>} />
+        </div>
   )
 }
 
