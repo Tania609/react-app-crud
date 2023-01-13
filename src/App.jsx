@@ -63,6 +63,7 @@ import { FsaMantenimiento } from "./pages/FsaMantenimiento";
 import BuscarFsa from "./pages/BuscarFsa";
 import CargoFsa from "./reports/CargoFsa";
 import FsaSistemas from "./pages/FsaSistemas";
+import BitacoraError from "./pages/BitacoraError";
 const App = () => {
     const tab =()=>{
         return(
@@ -98,6 +99,7 @@ const App = () => {
             <Route path="fsa_subir" element={<BuscarFsa/>}></Route>
             <Route path="cargo" element={<CargoFsa/>}></Route>
             <Route path="prueba" element={<FsaSistemas/>}></Route>
+            <Route path="bitacora-error" element={<BitacoraError/>}></Route>
         </Routes>
        
     

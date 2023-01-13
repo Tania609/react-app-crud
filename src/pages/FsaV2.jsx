@@ -7,6 +7,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { SelectButton } from 'primereact/selectbutton';
 import { Button } from 'primereact/button';
 import { classNames } from "primereact/utils";
+import { Toast } from 'primereact/toast';
 import Entidades from '../services/Entidades';
 import jsPDF from "jspdf";
 import FsaV2Report from "../reports/FsaV2Report";
@@ -19,6 +20,10 @@ import BuscarFsa from "./BuscarFsa";
 const FsaV2 = () => {
 
     const conexion="http://172.20.106.185:8088/desa/bd/crud_uti.php";
+    const toast = useRef(null);
+    const fsaGuardado = () => {
+        toast.current.show({severity:'success', summary: 'FSA Guardado correctamente', life: 3000});
+    }
     //datos personales
     const [dni,setDni]=useState("");
     const [nombre,setNombre]=useState("");
@@ -46,6 +51,8 @@ const FsaV2 = () => {
     const [selectPide,setSelectPide]=useState([]);
     const [submitted,setSubmitted]=useState(false);
     const [personas,setPersonas]=useState([]);
+
+    const [nombreArchivo,setNombreArchivo]=useState("");
 
     //const [areaFilter, setAreaFilter]=useState([]);
     const [empleados,empleadosCombo,oficinas,oficinasCombo,perfiles,perfilCombo,estados,estadosCombo,areas,areasCombo,unidades,unidadesCombo]=Entidades();
@@ -410,7 +417,8 @@ const FsaV2 = () => {
     const prueba=async()=>{
         setSubmitted(true);
         await guardar();
-        //clearData();
+        setNombreArchivo(nombre+" "+apePaterno+" "+apeMaterno);
+        clearData();
     };
     
     
@@ -418,6 +426,7 @@ const FsaV2 = () => {
     
     return (
     <div className='card'>
+        <Toast ref={toast} />
         <div className=" table-header">
              <h2>SOLICITUD DE ACCESOS</h2>
              <div><Button label="Limpiar" className="p-button-secondary"  onClick={clearData} /></div>
@@ -698,8 +707,8 @@ const FsaV2 = () => {
               <PDFDownloadLink 
                     document={FsaV2Report({dni,nombre,apePaterno,apeMaterno,correo,oficina,unidad,area,cargo,dirIp,sustento,
                     selectSistemas,autorizadoPor,autorizado,fecha})} 
-                    fileName={("FSA - "+nombre+" "+apePaterno+" "+apeMaterno).toUpperCase()}
-                    
+                    fileName={("FSA - "+nombreArchivo).toUpperCase()}
+                    onClick={fsaGuardado}
                 >
                     {((nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? <Button label="Falta Completar datos (FSA)" className="p-button-warning underline:none" icon="pi pi-info-circle" disabled/> : <Button label="Generar (FSA) y Guardar"className="p-button-success" type="submit" icon="pi pi-file-export" onClick={prueba}/>)}
                 </PDFDownloadLink>

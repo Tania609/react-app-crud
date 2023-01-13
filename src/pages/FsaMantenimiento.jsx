@@ -23,37 +23,16 @@ export const FsaMantenimiento = () => {
     
     const [hideDialog,editEntidad,confirmDeleteEEntidad,findIndexById,onInputChange,actionBodyTemplate,entidad,setEntidad,
       setEntidadDialog,setSubmitted,entidadDialog,submitted]=DialogComponent();
-    /*
+    
     const [hideDialogCargo,editEntidadCargo,confirmDeleteEEntidadCargo,findIndexByIdCargo,onInputChangeCargo,actionBodyTemplateCargo,entidadCargo,setEntidadCargo,
         setEntidadDialogCargo,setSubmittedCargo,entidadDialogCargo,submittedCargo]=DialogComponent();
-    */
+    
       /*<Button
                 label="Cargo"
                 icon="pi pi-pencil"
                 className=" p-button-success mr-2"
                 onClick={() => editEntidadCargo(rowData)}
                 /> 
-                <Dialog
-                visible={entidadDialogCargo}
-                style={{ width: "550px" }}
-                header="Detalle Cargo"
-                modal
-                className="p-fluid"
-                //footer={empleadoDialogFooter}
-                onHide={hideDialogCargo}
-            >
-                {dialogItensCargo()}
-            </Dialog> 
-                */
-    const Template = (rowData) => {
-       // console.log(rowData)
-        return (
-            <React.Fragment>
-                <Button
-                icon="pi pi-pencil"
-                className=" p-button-success mr-2"
-                onClick={() => editEntidad(rowData)}
-                />
                 <PDFDownloadLink 
                     document={CargoFsa({})} 
                     fileName={("Cargo - "+rowData.nombre_completo).toUpperCase()}>
@@ -63,6 +42,22 @@ export const FsaMantenimiento = () => {
                         className="p-button-success mr-2" 
                     />}
                 </PDFDownloadLink>
+                */
+    const Template = (rowData) => {
+       // console.log(rowData)
+        return (
+            <React.Fragment>
+                <Button
+                    icon="pi pi-pencil"
+                    className=" p-button-success mr-2"
+                    onClick={() => editEntidad(rowData)}
+                />
+                <Button
+                    label="Cargo"
+                    icon="pi pi-pencil"
+                    className=" p-button-success mr-2"
+                    onClick={() => editEntidadCargo(rowData)}
+                /> 
             </React.Fragment>
         );
     };
@@ -120,55 +115,54 @@ export const FsaMantenimiento = () => {
             }); 
         }
     };
-    function readFile(event) {
-        console.log(event.target.result);
-      }
-    const customBase64Uploader = async (event) => {
-        var archivo = event.files[0];
-        let archivoNombre=archivo.name;
-        let xhr=new XMLHttpRequest();
-        xhr.open("POST","http://172.20.106.185:8088/desa/bd/prueba.php");
-        var datos = new FormData();
-        datos.append("file", archivo);
-        xhr.send(datos);
-        /*
-        console.log(file);
-        var reader = new FileReader();
-        reader.addEventListener('load', readFile);
-        reader.readAsText(file);
-        */
-      /*
-      formData.append("image", imagefile.files[0]);
-        axios.post(conexion,{opcion:33}, {
-            headers: {
-            'Content-Type': 'multipart/form-data'
+    const inputsSistemas=(_id_deta)=>{
+        if(entidadDialogCargo){
+            var aux="";
+            axios
+            .post(conexion, {
+                opcion: 30,
+                id_deta:_id_deta,
+        })
+        .then((response) => { 
+
+              
+            const sis=response.data
+            for(let i in sis){
+                aux+= `<div>
+                 ${sis[i]['nomb_sist']}
+                </div>`
             }
-        })*/
-      /*BLOB :/
-      const reader = new FileReader();
-        reader.onload = function(e) {
-            const blob = new Blob([new Uint8Array(e.target.result)], {type: file.type });
-            console.log(blob);
-            axios.post(conexion, 
-              { opcion: 31,id_deta:entidad.id_deta,pdf_imagen:blob},
-            )
-            .then((response) => console.log(response.data));
-        };
-        reader.readAsArrayBuffer(file);
-        */
-          /*
-          //guardar
-          axios.post(conexion, 
-            { opcion: 31,id_deta:entidad.id_deta,pdf_imagen:blob})
-          .then((response) => console.log(response.data));
-          */
-         /*
-          axios.post(conexion, 
-            { opcion: 32,id_deta:entidad.id_deta})
-          .then((response) => console.log(response.data));
-          */
+            document.getElementById("sistemas").innerHTML=aux;
+            }); 
+        }
+    };
+    const customBase64Uploader = async (event) => {
+        const nombre_archivo=entidad.id_empl+"-"+entidad.id_fsa+"-"+entidad.id_deta+'.pdf';
+        var file = event.files[0];
+        const myNewFile = new File([file], nombre_archivo, {type: file.type});
+        console.log(myNewFile);
+        const data=new FormData();
+        data.append('archivo',myNewFile);
+        console.log(data);
+        axios.post("http://localhost:8088/desa/bd/imagen.php", data,
+        {
+        'Content-Type': 'multipart/form-data'
+        }).then((response) =>{
+            console.log(response.data);
+            if(response.data==="correcto"){
+                axios.post(conexion, 
+                    { opcion: 31,id_deta:entidad.id_deta,pdf_auto_dir:nombre_archivo})
+                  .then((response) => console.log(response.data));
+            }
+        });
+
         
     }
+    const leerPdf=(dir)=>{
+        if(dir!==null){
+            return(<a href={"file://172.20.106.185/c$/FSA/"+dir} target="_blank">{dir}</a>)
+        }
+    };
     const dialogItens=()=>{     
         return[
             <div className="field" key="sustento_fsa">
@@ -194,9 +188,10 @@ export const FsaMantenimiento = () => {
             </ul>
         </div>,
         <div  className="field" key="file_fsa">
+            {leerPdf(entidad.pdf_auto_dir)}
             <p>Subir FSA Firmado</p>
             <FileUpload 
-            name="demo" 
+            name="archivo" 
             accept="pdf/*" 
             maxFileSize={1000000}
             customUpload 
@@ -215,6 +210,12 @@ export const FsaMantenimiento = () => {
                 placeholder="Ingresar correo"
                 type="email"
             />
+        </div>,
+        <div className="field" key="sistemas_fsa">
+            <p>Sistemas</p>
+            <div id="sistemas" className="text-gray-400">
+                {inputsSistemas(entidadCargo.id_deta)}
+            </div>
         </div>,
         ];
     };
@@ -238,6 +239,17 @@ export const FsaMantenimiento = () => {
                 onHide={hideDialog}
             >
                 {dialogItens()}
+            </Dialog> 
+            <Dialog
+                visible={entidadDialogCargo}
+                style={{ width: "550px" }}
+                header="Detalle Cargo"
+                modal
+                className="p-fluid"
+                //footer={empleadoDialogFooter}
+                onHide={hideDialogCargo}
+            >
+                {dialogItensCargo()}
             </Dialog> 
             
         </div>
