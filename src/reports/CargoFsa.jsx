@@ -2,7 +2,7 @@ import { Document, Page, Text, View, StyleSheet ,PDFViewer,Image,PDFDownloadLink
 import logo from '../images/logo.png'
 import React from 'react'
 
-const CargoFsa = () => {
+const CargoFsa = ({nombre,dni,fecha,datosCargo}) => {
     const styles = StyleSheet.create({
         page: {
             fontFamily: 'Helvetica',
@@ -64,21 +64,27 @@ const CargoFsa = () => {
             fontSize:9
         },
     });
-    /*
+
     const sistemas = [];
-    for (let i in selectSistemas) {
+    for (let i in datosCargo) {
         sistemas.push(
-            <View style={styles.container} key={selectSistemas[i].key}>
+            <View style={styles.container} key={datosCargo[i][0]}>
                 <View style={[{borderRight:1,borderBottom:1,borderLeft:1,width:'20%',paddingTop:8,paddingBottom:3},]}>
                     <Text  style={[{ fontSize: 9,},styles.marginAuto]} >{parseInt(i)+1}</Text>
                 </View>
                 <View style={[styles.item70,{borderRight:1,borderBottom:1,paddingTop:8,paddingBottom:3}]}>
-                    <Text  style={{ fontSize: 9,paddingLeft:5}} >{selectSistemas[i].name}</Text>
+                    <Text  style={{ fontSize: 9,paddingLeft:5}} >{datosCargo[i][0]}</Text>
+                </View> 
+                <View style={[styles.item70,{borderRight:1,borderBottom:1,paddingTop:8,paddingBottom:3}]}>
+                    <Text  style={{ fontSize: 9,paddingLeft:5}} >{datosCargo[i][1]}</Text>
+                </View> 
+                <View style={[styles.item70,{borderRight:1,borderBottom:1,paddingTop:8,paddingBottom:3}]}>
+                    <Text  style={{ fontSize: 9,paddingLeft:5}} >{datosCargo[i][2]}</Text>
                 </View> 
             </View>
       );
     }
-    */
+    
 
     /*
     const viewAutorizado=()=>{
@@ -122,13 +128,13 @@ const CargoFsa = () => {
                     <View style={styles.container}>
                         <Text  style={[{ fontSize: 11,marginBottom:4},styles.item50,styles.bold,styles.underline]} >1.DATOS DE ACCESOS</Text>
                         <View style={[styles.item50,{fontSize: 10,flexDirection:'row-reverse',paddingRight:10,marginBottom:4}]}>
-                            <Text> fecha</Text>
+                            <Text> {fecha}</Text>
                             <Text  style={[styles.bold]} >Fecha:</Text>
                         </View>
                     </View>
                     <View style={[styles.container,{ padding: 5}]}>
                         <Text>Por la presente, la Unidad de Tecnologias de la Informacion hace entrega al personal,
-                            <Text  style={[styles.bold]} > Nombres y apellidos</Text>, identificado con N° de DNI<Text  style={[styles.bold]} > DNI</Text>,
+                            <Text  style={[styles.bold]} > {nombre}</Text>, identificado con N° de DNI<Text  style={[styles.bold]} > {dni}</Text>,
                             la(s) clave(s) de acceso siguientes:
                         </Text>
                     </View>
@@ -147,13 +153,14 @@ const CargoFsa = () => {
                                 <Text  style={[styles.textItems,styles.marginAuto]} >CONSTRASEÑA</Text>
                             </View>
                         </View>
+                        {sistemas}
                     </View>
                 </View>
                 <View style={styles.containerBody}>
                     <View style={styles.container}>
                         <Text  style={[{ fontSize: 11,marginBottom:4},styles.item50,styles.bold,styles.underline]} >2. RECEPCIÓN</Text>
                         <View style={[styles.item50,{fontSize: 10,flexDirection:'row-reverse',paddingRight:10,marginBottom:4}]}>
-                            <Text> fecha</Text>
+                            <Text> {fecha}</Text>
                             <Text  style={[styles.bold]} >Fecha:</Text>
                         </View>
                     </View>
@@ -161,7 +168,7 @@ const CargoFsa = () => {
                     <View style={{alignItems: 'center',paddingTop:50}}>
                         <View style={[{width: '25%',borderTop:1, alignContent:'left'}]}>
                             <Text style={[{fontSize:9,paddingTop:5},styles.marginAuto]}>Firma</Text>
-                            <Text style={[{fontSize:9,paddingTop:5},styles.marginAuto]}>DNI : dni</Text>
+                            <Text style={[{fontSize:9,paddingTop:5},styles.marginAuto]}>DNI : {dni}</Text>
                         </View>
                     </View>
                     <View style={[styles.container,{padding:10,marginTop:30}]}>

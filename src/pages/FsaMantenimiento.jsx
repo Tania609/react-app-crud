@@ -15,6 +15,7 @@ export const FsaMantenimiento = () => {
     const [empleadosFsa, setEmpleadosFsa] = useState([]);
     const [detallesFsa, setDetallesFsa] = useState([]);
     const [sistemas, setSistemas]=useState([]);
+    const [datosCargo,setDatosCargo]=useState([]);
     const toast = useRef(null);
 
     useEffect(() => {
@@ -95,7 +96,7 @@ export const FsaMantenimiento = () => {
                 style={{ minWidth: "8rem" }}
             ></Column>   
         ]
-    }
+    };
     const viewSitemas=(_id_deta)=>{
         if(entidadDialog){
             var aux="";
@@ -105,8 +106,6 @@ export const FsaMantenimiento = () => {
                 id_deta:_id_deta,
         })
         .then((response) => { 
-
-              
             const sis=response.data
             for(let i in sis){
                 aux+= `<li>${sis[i]['nomb_sist']}</li>`
@@ -123,18 +122,34 @@ export const FsaMantenimiento = () => {
                 opcion: 30,
                 id_deta:_id_deta,
         })
-        .then((response) => { 
-
-              
-            const sis=response.data
-            for(let i in sis){
-                aux+= `<div>
-                 ${sis[i]['nomb_sist']}
-                </div>`
-            }
-            document.getElementById("sistemas").innerHTML=aux;
+        .then((response) => {
+            setSistemas(response.data)
             }); 
         }
+        var indents = [];
+        for (var i = 0; i < sistemas.length; i++) {
+            indents.push(
+                <div key={i} className="grid align-items-baseline">
+                    <div className="col-12 md:col-4">{sistemas[i]['nomb_sist']}</div>
+                    <div className="col-12 md:col-4 field">
+                        <InputText
+                            id={"usuario"+i}
+                            placeholder="Ingresar usuario"
+                            type="text"
+                        />
+                    </div>
+                    <div className="col-12 md:col-4">
+                        <InputText
+                            id={"contraseña"+i}
+                            placeholder="Ingresar contraseña"
+                            type="text"
+                        />
+                    </div>
+                </div>
+            );
+        }
+        return indents;
+       
     };
     const customBase64Uploader = async (event) => {
         const nombre_archivo=entidad.id_empl+"-"+entidad.id_fsa+"-"+entidad.id_deta+'.pdf';
@@ -201,7 +216,22 @@ export const FsaMantenimiento = () => {
         </div>,
         ];
     };
+    const generarCargo=()=>{
+        var datos=[];
+        for (var i = 0; i < sistemas.length; i++) {
+            datos.push([sistemas[i]['nomb_sist'],document.getElementById('usuario'+i).value,document.getElementById('contraseña'+i).value])
+        }
+        setDatosCargo(datos);
+    };
     const dialogItensCargo=()=>{     
+        var nombre=entidadCargo.nombre_completo;
+        var dni=entidadCargo.dni;
+        var today = new Date();
+        var day = today.getDate();
+        var month = today.getMonth() + 1;
+        var year = today.getFullYear();
+        var fecha=(day+"/"+month+"/"+year).toString();
+        var datos=[["hi","hil","jkfl"]]
         return[
             <div className="field" key="correo_fsa">
             <label htmlFor="usuario">Correo</label>
@@ -217,8 +247,29 @@ export const FsaMantenimiento = () => {
                 {inputsSistemas(entidadCargo.id_deta)}
             </div>
         </div>,
+        <PDFDownloadLink key="docu_cargo_fsa"  document={CargoFsa({nombre,dni,fecha,datos})} fileName={("PSI - "+entidadCargo.nombre_completo).toUpperCase()}>
+                <Button label="Generar Cargo"className="p-button-success" type="submit" icon="pi pi-file-export" onClick={generarCargo}/>
+        </PDFDownloadLink>
+        
         ];
     };
+    
+    const empleadoDialogFooter = (
+        <React.Fragment>
+            <Button
+            label="Cancel"
+            icon="pi pi-times"
+            className="p-button-text"
+            onClick={hideDialog}
+            />
+            <Button
+            label="Save"
+            icon="pi pi-check"
+            className="p-button-text"
+            onClick={generarCargo}
+            />
+        </React.Fragment>
+    );
     const chooseOptions = {label:"Agregar",className: 'custom-choose-btn p-button-rounded p-button-outlined'};
     const uploadOptions = {label:"Subir", className: 'custom-upload-btn p-button-success p-button-rounded p-button-outlined'};
     const cancelOptions = {label:"Cancelar", className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined'};
@@ -242,11 +293,11 @@ export const FsaMantenimiento = () => {
             </Dialog> 
             <Dialog
                 visible={entidadDialogCargo}
-                style={{ width: "550px" }}
+                style={{ width: "650px" }}
                 header="Detalle Cargo"
                 modal
                 className="p-fluid"
-                //footer={empleadoDialogFooter}
+                footer={empleadoDialogFooter}
                 onHide={hideDialogCargo}
             >
                 {dialogItensCargo()}
