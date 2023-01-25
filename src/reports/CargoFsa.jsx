@@ -69,18 +69,18 @@ const CargoFsa = ({nombre,dni,fecha,datosCargo}) => {
     for (let i in datosCargo) {
         sistemas.push(
             <View style={styles.container} key={datosCargo[i][0]}>
-                <View style={[{borderRight:1,borderBottom:1,borderLeft:1,width:'20%',paddingTop:8,paddingBottom:3},]}>
-                    <Text  style={[{ fontSize: 9,},styles.marginAuto]} >{parseInt(i)+1}</Text>
+                <View style={[{width:'10%',paddingTop:8,paddingBottom:3,borderRight:0.8,borderLeft:0.8,borderBottom:1}]}>
+                    <Text  style={[styles.textItems,styles.marginAuto]} >{parseInt(i)+1}</Text>
                 </View>
-                <View style={[styles.item70,{borderRight:1,borderBottom:1,paddingTop:8,paddingBottom:3}]}>
-                    <Text  style={{ fontSize: 9,paddingLeft:5}} >{datosCargo[i][0]}</Text>
-                </View> 
-                <View style={[styles.item70,{borderRight:1,borderBottom:1,paddingTop:8,paddingBottom:3}]}>
-                    <Text  style={{ fontSize: 9,paddingLeft:5}} >{datosCargo[i][1]}</Text>
-                </View> 
-                <View style={[styles.item70,{borderRight:1,borderBottom:1,paddingTop:8,paddingBottom:3}]}>
-                    <Text  style={{ fontSize: 9,paddingLeft:5}} >{datosCargo[i][2]}</Text>
-                </View> 
+                <View style={[{width:'35%',paddingTop:8,paddingBottom:3,borderRight:0.8,borderBottom:1}]}>
+                    <Text  style={[styles.textItems,styles.marginAuto]} >{datosCargo[i][0]}</Text>
+                </View>
+                <View style={[{width:'20%',paddingTop:8,paddingBottom:3,borderRight:0.8,borderBottom:1}]}>
+                    <Text  style={[styles.textItems,styles.marginAuto]} >{datosCargo[i][1]}</Text>
+                </View>
+                <View style={[{width:'35%',paddingTop:8,paddingBottom:3,borderRight:0.8,borderBottom:1}]}>
+                    <Text  style={[styles.textItems,styles.marginAuto]} >{datosCargo[i][2]}</Text>
+                </View>
             </View>
       );
     }
@@ -140,16 +140,16 @@ const CargoFsa = ({nombre,dni,fecha,datosCargo}) => {
                     </View>
                     <View style={[styles.container,styles.containerSub,{ margin: 5}]}>
                         <View style={styles.container}>
-                            <View style={[{border:0.8,width:'10%',paddingTop:8,paddingBottom:3},]}>
+                            <View style={[{width:'10%',paddingTop:8,paddingBottom:3,borderRight:1,borderLeft:0.8,borderTop:1,borderBottom:0.8}]}>
                                 <Text  style={[styles.textItems,styles.marginAuto]} >NRO</Text>
                             </View>
-                            <View style={[{borderBottom:0.5,borderTop:0.5,width:'35%',paddingTop:8,paddingBottom:3},]}>
+                            <View style={[{width:'35%',paddingTop:8,paddingBottom:3,borderRight:0.8,borderTop:1,borderBottom:0.8}]}>
                                 <Text  style={[styles.textItems,styles.marginAuto]} >SISTEMA</Text>
                             </View>
-                            <View style={[{border:0.8,width:'20%',paddingTop:8,paddingBottom:3},]}>
+                            <View style={[{width:'20%',paddingTop:8,paddingBottom:3,borderRight:0.8,borderTop:1,borderBottom:0.8}]}>
                                 <Text  style={[styles.textItems,styles.marginAuto]} >USUARIO</Text>
                             </View>
-                            <View style={[{borderBottom:0.8,borderTop:0.8,borderRight:0.8,width:'35%',paddingTop:8,paddingBottom:3},]}>
+                            <View style={[{width:'35%',paddingTop:8,paddingBottom:3,borderRight:0.8,borderTop:1,borderBottom:0.8}]}>
                                 <Text  style={[styles.textItems,styles.marginAuto]} >CONSTRASEÑA</Text>
                             </View>
                         </View>

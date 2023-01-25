@@ -8,7 +8,7 @@ import { InputText } from "primereact/inputtext";
 import { FileUpload } from 'primereact/fileupload';
 import { Toast } from 'primereact/toast';
 import DialogComponent from "../context/DialogComponent";
-import { PDFDownloadLink} from '@react-pdf/renderer';
+import { PDFDownloadLink,PDFViewer} from '@react-pdf/renderer';
 import CargoFsa from "../reports/CargoFsa";
 export const FsaMantenimiento = () => {
     const conexion="http://172.20.106.185:8088/desa/bd/crud_uti.php";
@@ -136,6 +136,7 @@ export const FsaMantenimiento = () => {
                             id={"usuario"+i}
                             placeholder="Ingresar usuario"
                             type="text"
+                            onChange={generarCargo}
                         />
                     </div>
                     <div className="col-12 md:col-4">
@@ -143,6 +144,7 @@ export const FsaMantenimiento = () => {
                             id={"contraseña"+i}
                             placeholder="Ingresar contraseña"
                             type="text"
+                            onChange={generarCargo}
                         />
                     </div>
                 </div>
@@ -159,7 +161,7 @@ export const FsaMantenimiento = () => {
         const data=new FormData();
         data.append('archivo',myNewFile);
         console.log(data);
-        axios.post("http://localhost:8088/desa/bd/imagen.php", data,
+        axios.post("http://172.20.106.185:8088/desa/bd/imagen.php", data,
         {
         'Content-Type': 'multipart/form-data'
         }).then((response) =>{
@@ -175,7 +177,7 @@ export const FsaMantenimiento = () => {
     }
     const leerPdf=(dir)=>{
         if(dir!==null){
-            return(<a href={"file://172.20.106.185/c$/FSA/"+dir} target="_blank">{dir}</a>)
+            return(<a href={"file://172.20.106.185/c$/367-1-2.pdf"} target="_blank">{dir}</a>)
         }
     };
     const dialogItens=()=>{     
@@ -225,13 +227,12 @@ export const FsaMantenimiento = () => {
     };
     const dialogItensCargo=()=>{     
         var nombre=entidadCargo.nombre_completo;
-        var dni=entidadCargo.dni;
+        var dni=entidadCargo.dni_empl;
         var today = new Date();
         var day = today.getDate();
         var month = today.getMonth() + 1;
         var year = today.getFullYear();
         var fecha=(day+"/"+month+"/"+year).toString();
-        var datos=[["hi","hil","jkfl"]]
         return[
             <div className="field" key="correo_fsa">
             <label htmlFor="usuario">Correo</label>
@@ -247,29 +248,13 @@ export const FsaMantenimiento = () => {
                 {inputsSistemas(entidadCargo.id_deta)}
             </div>
         </div>,
-        <PDFDownloadLink key="docu_cargo_fsa"  document={CargoFsa({nombre,dni,fecha,datos})} fileName={("PSI - "+entidadCargo.nombre_completo).toUpperCase()}>
+        <PDFDownloadLink key="docu_cargo_fsa"  document={CargoFsa({nombre,dni,fecha,datosCargo})} fileName={("CARGO - "+entidadCargo.nombre_completo).toUpperCase()}>
                 <Button label="Generar Cargo"className="p-button-success" type="submit" icon="pi pi-file-export" onClick={generarCargo}/>
         </PDFDownloadLink>
         
         ];
     };
     
-    const empleadoDialogFooter = (
-        <React.Fragment>
-            <Button
-            label="Cancel"
-            icon="pi pi-times"
-            className="p-button-text"
-            onClick={hideDialog}
-            />
-            <Button
-            label="Save"
-            icon="pi pi-check"
-            className="p-button-text"
-            onClick={generarCargo}
-            />
-        </React.Fragment>
-    );
     const chooseOptions = {label:"Agregar",className: 'custom-choose-btn p-button-rounded p-button-outlined'};
     const uploadOptions = {label:"Subir", className: 'custom-upload-btn p-button-success p-button-rounded p-button-outlined'};
     const cancelOptions = {label:"Cancelar", className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined'};
@@ -297,7 +282,6 @@ export const FsaMantenimiento = () => {
                 header="Detalle Cargo"
                 modal
                 className="p-fluid"
-                footer={empleadoDialogFooter}
                 onHide={hideDialogCargo}
             >
                 {dialogItensCargo()}

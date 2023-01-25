@@ -3,6 +3,9 @@ import axios from "axios";
 import { Toast } from 'primereact/toast';
 import { FileUpload } from 'primereact/fileupload';
 import FsaSistemas from './FsaSistemas';
+import CargoFsa from '../reports/CargoFsa';
+import { PDFDownloadLink,PDFViewer} from '@react-pdf/renderer';
+
 const BuscarFsa = () => {
   const toast = useRef(null);
   const onUpload = () => {
@@ -68,7 +71,14 @@ const BuscarFsa = () => {
     console.log(ar.length);
       console.log(aux);
   }
-  
+  var nombre="TANIA"
+        var dni="70324280";
+        var today = new Date();
+        var day = today.getDate();
+        var month = today.getMonth() + 1;
+        var year = today.getFullYear();
+        var fecha=(day+"/"+month+"/"+year).toString();
+        var datosCargo=[["hi","hil","jkfl"],["hi","hil","jkfl"]]
   return (
     <div className="card">
       <h5>Advanced</h5>
@@ -84,6 +94,9 @@ const BuscarFsa = () => {
       <div id="pi">
        {view()}
       </div>
+      <PDFViewer width="1000" height="600" className="app" >
+          {CargoFsa({nombre,dni,fecha,datosCargo})}
+      </PDFViewer>
     </div>
   )
 }
