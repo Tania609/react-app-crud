@@ -419,10 +419,7 @@ const FsaV2 = () => {
         await guardar();
         setNombreArchivo(nombre+" "+apePaterno+" "+apeMaterno);
         clearData();
-    };
-    
-    
-    
+    };        
     
     return (
     <div className='card'>

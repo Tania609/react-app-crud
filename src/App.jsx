@@ -59,11 +59,11 @@ import { TabView, TabPanel } from 'primereact/tabview';
 import {Routes, Route} from 'react-router-dom';
 import FsaV2 from './pages/FsaV2';
 import Dropwdown2 from './reports/PsiReport';
-import { FsaMantenimiento } from "./pages/FsaMantenimiento";
 import BuscarFsa from "./pages/BuscarFsa";
 import CargoFsa from "./reports/CargoFsa";
 import FsaSistemas from "./pages/FsaSistemas";
 import BitacoraError from "./pages/BitacoraError";
+import FsaMantenimiento from "./pages/FsaMantenimiento";
 const App = () => {
     const tab =()=>{
         return(

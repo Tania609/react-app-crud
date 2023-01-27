@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { FileUpload } from 'primereact/fileupload';
+import { Button } from "primereact/button";
 const FsaSistemas = () => {
   const customBase64Uploader = async (event) => {
     var file = event.files[0];
@@ -57,7 +58,30 @@ const FsaSistemas = () => {
             { opcion: 32,id_deta:entidad.id_deta})
           .then((response) => console.log(response.data));
           */
-        
+          const name='FSA-TANIA VANESSA HUARANCCA PERALTA-367-1-1.pdf';  
+          const prue=()=>{
+            axios.post("http://localhost:8088/desa/bd/downloadFile.php",
+            { opcion: name,}).then((response) => {
+              console.log(response)
+              const tempLink = document.createElement('a');
+              tempLink.href = response.data;
+              tempLink.click();
+            });     
+          };
+          
+          const generar=()=>{
+            axios.get('https://vpn.sunarp.gob.pe/api/v1/configuration/users/user-realms/realm/realm_zrx', {
+              auth: {
+                username: "adm_bflores_zrx",
+                password: "Cusco01cusco"
+              },
+            })
+            .then((res) => {
+              console.log(res.data)
+            })
+          };
+
+
 
   return (
     <div  className="field" key="file_fsa">
@@ -70,6 +94,9 @@ const FsaSistemas = () => {
             customUpload 
             uploadHandler={customBase64Uploader}
             emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>} />
+            <Button label="prueba" onClick={prue}></Button>
+            <Button label="prueba2" onClick={generar}></Button>
+            <a href={"http://localhost:8088/desa/bd/downloadFile.php?opcion="+name}>hi</a>
         </div>
   )
 }

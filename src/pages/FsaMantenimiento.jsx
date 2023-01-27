@@ -10,14 +10,16 @@ import { Toast } from 'primereact/toast';
 import DialogComponent from "../context/DialogComponent";
 import { PDFDownloadLink,PDFViewer} from '@react-pdf/renderer';
 import CargoFsa from "../reports/CargoFsa";
-export const FsaMantenimiento = () => {
+
+const FsaMantenimiento = () => {
     const conexion="http://172.20.106.185:8088/desa/bd/crud_uti.php";
     const [empleadosFsa, setEmpleadosFsa] = useState([]);
-    const [detallesFsa, setDetallesFsa] = useState([]);
     const [sistemas, setSistemas]=useState([]);
     const [datosCargo,setDatosCargo]=useState([]);
     const toast = useRef(null);
-
+    const fsaGuardado = () => {
+        toast.current.show({severity:'success', summary: 'FSA Actualizado', life: 3000});
+    }
     useEffect(() => {
         axios.post(conexion, { opcion: 29,}).then((response) => setEmpleadosFsa(response.data));
     }, [empleadosFsa]);
@@ -27,6 +29,8 @@ export const FsaMantenimiento = () => {
     
     const [hideDialogCargo,editEntidadCargo,confirmDeleteEEntidadCargo,findIndexByIdCargo,onInputChangeCargo,actionBodyTemplateCargo,entidadCargo,setEntidadCargo,
         setEntidadDialogCargo,setSubmittedCargo,entidadDialogCargo,submittedCargo]=DialogComponent();
+    
+        
     
       /*<Button
                 label="Cargo"
@@ -116,7 +120,6 @@ export const FsaMantenimiento = () => {
     };
     const inputsSistemas=(_id_deta)=>{
         if(entidadDialogCargo){
-            var aux="";
             axios
             .post(conexion, {
                 opcion: 30,
@@ -154,7 +157,7 @@ export const FsaMantenimiento = () => {
        
     };
     const customBase64Uploader = async (event) => {
-        const nombre_archivo=entidad.id_empl+"-"+entidad.id_fsa+"-"+entidad.id_deta+'.pdf';
+        const nombre_archivo="FSA-"+entidad.nombre_completo+"-"+entidad.id_empl+"-"+entidad.id_fsa+"-"+entidad.id_deta+'.pdf';
         var file = event.files[0];
         const myNewFile = new File([file], nombre_archivo, {type: file.type});
         console.log(myNewFile);
@@ -170,19 +173,33 @@ export const FsaMantenimiento = () => {
                 axios.post(conexion, 
                     { opcion: 31,id_deta:entidad.id_deta,pdf_auto_dir:nombre_archivo})
                   .then((response) => console.log(response.data));
+                fsaGuardado();
+                hideDialog();
             }
-        });
-
-        
-    }
-    const leerPdf=(dir)=>{
+        });      
+    };
+    const leerPdf=(deta,dir)=>{
+        const eliminar=()=>{
+            axios.post(conexion, {
+                opcion: 35,id_deta:deta,file_dir:dir
+            })
+            .then((response) =>console.log(response));
+        }
         if(dir!==null){
-            return(<a href={"file://172.20.106.185/c$/367-1-2.pdf"} target="_blank">{dir}</a>)
+            return(
+                <div className="field py-1">
+                    <p>FSA Firmado <span className="text-xs text-gray-400">({dir})</span></p>
+                    <div className="grid">
+                        <a className="col-6 text-green-500 border-1 border-round-lg py-1 px-3" href={"http://172.20.106.185:8088/desa/bd/downloadFile.php?opcion="+dir}>Descargar</a>
+                        <Button className="col-6 p-button-outlined p-button-danger py-1 px-3" onClick={eliminar}>Eliminar</Button>
+                    </div>
+                </div>
+            )
         }
     };
     const dialogItens=()=>{     
         return[
-            <div className="field" key="sustento_fsa">
+         <div className="field" key="sustento_fsa">
             <label htmlFor="usuario">Sustento</label>
             <InputText
                 id="usuario"
@@ -205,7 +222,7 @@ export const FsaMantenimiento = () => {
             </ul>
         </div>,
         <div  className="field" key="file_fsa">
-            {leerPdf(entidad.pdf_auto_dir)}
+            {leerPdf(entidad.id_deta,entidad.pdf_auto_dir)}
             <p>Subir FSA Firmado</p>
             <FileUpload 
             name="archivo" 
@@ -260,6 +277,7 @@ export const FsaMantenimiento = () => {
     const cancelOptions = {label:"Cancelar", className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined'};
     return (
         <div>
+            <Toast ref={toast} key="mensaje"/>
             <DataTableComponent 
                 entidades={empleadosFsa} 
                 columnasTabla={columnasTabla()}
@@ -290,3 +308,5 @@ export const FsaMantenimiento = () => {
         </div>
   )
 }
+
+export default FsaMantenimiento
