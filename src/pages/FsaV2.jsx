@@ -325,6 +325,7 @@ const FsaV2 = () => {
                     await axios
                     .post(conexion, {
                         opcion: 26,
+                        dir_ip:dirIp,
                         sustento:sustento,
                         autorizado_por:autorizadoPor,
                         fecha:fecha,
