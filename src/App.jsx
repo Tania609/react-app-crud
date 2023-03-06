@@ -25,8 +25,8 @@
 //import "primereact/resources/themes/mdc-light-indigo/theme.css"
 //import "primereact/resources/themes/mdc-light-deeppurple/theme.css"
 
-import "primereact/resources/themes/tailwind-light/theme.css"
-//import "primereact/resources/themes/fluent-light/theme.css"
+//import "primereact/resources/themes/tailwind-light/theme.css"
+import "primereact/resources/themes/fluent-light/theme.css"
 //import "primereact/resources/themes/lara-light-blue/theme.css"
 //import "primereact/resources/themes/lara-light-indigo/theme.css"
 //import "primereact/resources/themes/lara-light-purple/theme.css"
@@ -95,9 +95,9 @@ const App = () => {
     <div className="App">
         <Routes>
             <Route path="/" element={tab()}></Route>
-            <Route path="fsa" element={<FsaV2/>}></Route>
-            <Route path="fsa_mantenimiento" element={<FsaMantenimiento/>}></Route>
-            <Route path="fsa_gestion" element={<FsaGestion/>}></Route>
+            <Route path="fsa-crear" element={<FsaV2/>}></Route>
+            <Route path="fsa_detalle/:id_empleado" element={<FsaMantenimiento/>}></Route>
+            <Route path="fsa" element={<FsaGestion/>}></Route>
             <Route path="fsa_subir" element={<BuscarFsa/>}></Route>
             <Route path="cargo" element={<CargoFsa/>}></Route>
             <Route path="prueba" element={<FsaSistemas/>}></Route>

@@ -18,11 +18,14 @@ import { Document, Page, Text, View, StyleSheet ,PDFViewer,Image,Font} from '@re
 import BuscarFsa from "./BuscarFsa";
 
 const FsaV2 = () => {
-
+    const ruta_fsa='http://172.20.106.185:3000/fsa';
     const conexion="http://172.20.106.185:8088/desa/bd/crud_uti.php";
     const toast = useRef(null);
     const fsaGuardado = () => {
         toast.current.show({severity:'success', summary: 'FSA Guardado correctamente', life: 3000});
+    }
+    const msjEmpleado = () => {
+        toast.current.show({severity:'error', summary: 'Empleado no encontrado', life: 3000});
     }
     //datos personales
     const [dni,setDni]=useState("");
@@ -51,6 +54,9 @@ const FsaV2 = () => {
     const [selectPide,setSelectPide]=useState([]);
     const [submitted,setSubmitted]=useState(false);
     const [personas,setPersonas]=useState([]);
+
+    const [filertNombre,setFilterNombre]=useState("");
+    const [filertDni,setFilterDni]=useState("");
 
     const [nombreArchivo,setNombreArchivo]=useState("");
 
@@ -126,6 +132,7 @@ const FsaV2 = () => {
         {name:"KeyFile",key:'inf1'},
         {name:"VMWARE",key:'inf2'},
         {name:"VPN",key:'inf3'},
+        {name:"Discovery",key:'inf4'},
     ];
     const listAntivirus=[
         {name:"Bloqueo USB/CD",key:'ant0'},
@@ -221,9 +228,9 @@ const FsaV2 = () => {
     const autorizadoView=()=>{
         if(autorizado==="Jefe"){
             return(
-                <div key="sdd">
-                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="jefe">Jefe de la Unidad/Jefe Inmediato:</label>
-                    <InputText className='col-12 md:col-7' 
+                <div key="sdd" className="col-12 md:col-8 grid">
+                    <label className='col-12 md:col-3 text-left font-semibold text-left' htmlFor="jefe">Jefe de la Unidad/Jefe Inmediato:</label>
+                    <InputText className='col-12 md:col-8' 
                         id="jefe"
                         value={autorizadoPor}
                         placeholder="Ingrese Nombre del jefe"
@@ -233,9 +240,9 @@ const FsaV2 = () => {
             );
         }else{
             return(
-                <div key="dfsd">
-                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="documento">Documento:</label>
-                    <InputText className='col-12 md:col-7' 
+                <div key="dfsd" className="col-12 md:col-8 grid">
+                    <label className='col-12 md:col-3 text-left font-semibold text-left' htmlFor="documento">Documento:</label>
+                    <InputText className='col-12 md:col-8' 
                         id="documento"
                         value={autorizadoPor}
                         placeholder="Documento que sustenta la autorizacion"
@@ -246,6 +253,8 @@ const FsaV2 = () => {
         }
     };
     const clearData=()=>{
+        setFilterDni("");
+        setFilterNombre("");
         setNombre("");
         setDni("");
         setNombre("");
@@ -277,8 +286,9 @@ const FsaV2 = () => {
             return(
                 <PDFDownloadLink document={PsiReport({dni,nombre,apePaterno,apeMaterno,correo,cargo,unidad,oficina,autorizadoPor,
                     selectNotarios,selectEmpresas,selectSeguridad,selectVerificadores,selectEntidades,selectPide,
-                    mNotarios,mEmpresas,mSeguridad,mVerificadores,mEntidades,mPide})} fileName={("PSI - "+nombre+" "+apePaterno+" "+apeMaterno).toUpperCase()}>
-                    {((nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? <Button label="Falta Completar datos (PSI)" className="p-button-warning underline:none" icon="pi pi-info-circle" disabled/> : <Button label="Generar (PSI)"className="p-button-success" type="submit" icon="pi pi-file-export" onClick={prueba}/>)}
+                    mNotarios,mEmpresas,mSeguridad,mVerificadores,mEntidades,mPide})} 
+                    fileName={("PSI - "+nombre+" "+apePaterno+" "+apeMaterno).toUpperCase()}>
+                    {((nombre===""|| dni===""||apeMaterno===""||apePaterno==="") ? <Button label="Falta Completar datos (PSI)" className="p-button-warning underline:none" icon="pi pi-info-circle" disabled/> : <Button label="Generar (PSI)"className="p-button-success" type="submit" icon="pi pi-file-export"/>)}
                 </PDFDownloadLink>
                 
             )
@@ -286,21 +296,54 @@ const FsaV2 = () => {
     };
    
     function buscarEmpleado(){
-        let persona=personas.filter(element => element.dni_empl===dni);
-        if(persona.length>0){
-            generarFecha();
-            setId_empl(persona[0]['id_empl']);
-            setNombre(persona[0]['nomb_empl']);
-            setApePaterno(persona[0]['ape_pate_empl']);
-            setApeMaterno(persona[0]['ape_mate_empl']);
-            setCorreo(persona[0]['desc_mail']);
-            //setDirIp();
-            setOficina(persona[0]['desc_ofic']);
-            setUnidad(persona[0]['desc_unid']);
-            setArea(persona[0]['desc_area']);
-            setCargo(persona[0]['desc_perf']);
+        if(filertDni!=""){
+            let persona=personas.filter(element => element.dni_empl===filertDni);
+            console.log(persona);
+            if(persona.length>0){
+                generarFecha();
+                setDni(persona[0]['dni_empl']);
+                setId_empl(persona[0]['id_empl']);
+                setNombre(persona[0]['nomb_empl']);
+                setApePaterno(persona[0]['ape_pate_empl']);
+                setApeMaterno(persona[0]['ape_mate_empl']);
+                setCorreo(persona[0]['desc_mail']);
+                //setDirIp();
+                setOficina(persona[0]['desc_ofic']);
+                setUnidad(persona[0]['desc_unid']);
+                setArea(persona[0]['desc_area']);
+                setCargo(persona[0]['desc_perf']);
+            }else{
+                msjEmpleado();
+            }
         }else{
-            console.log("no existe empleado");
+            var array=(filertNombre.replace(',',"")).split(" ");
+            var apeP_axu=array[0];
+            var apeM_axu=array[1];
+            var nombre=""
+            if(array.length===4){
+                nombre=array[2]+" "+array[3];
+            }else{
+                nombre=array[2]
+            }
+            console.log(apeP_axu+" "+apeM_axu+" "+nombre);
+            let persona=personas.filter(element => element.nomb_empl===nombre &&  element.ape_mate_empl===apeM_axu &&  element.ape_pate_empl===apeP_axu);
+            if(persona.length>0){
+                generarFecha();
+                setId_empl(persona[0]['id_empl']);
+                setDni(persona[0]['dni_empl']);
+                setNombre(persona[0]['nomb_empl']);
+                setApePaterno(persona[0]['ape_pate_empl']);
+                setApeMaterno(persona[0]['ape_mate_empl']);
+                setCorreo(persona[0]['desc_mail']);
+                //setDirIp();
+                setOficina(persona[0]['desc_ofic']);
+                setUnidad(persona[0]['desc_unid']);
+                setArea(persona[0]['desc_area']);
+                setCargo(persona[0]['desc_perf']);
+            }else{
+                msjEmpleado();
+            }
+           
         }
     };
 
@@ -340,7 +383,6 @@ const FsaV2 = () => {
                     })
                     .then(async(response3) => {
                         const _id_deta=response3.data;
-                        console.log("id_deta "+_id_deta)
                         for(let i in selectSistemas){    
                             await axios
                             .post(conexion, {
@@ -373,9 +415,11 @@ const FsaV2 = () => {
                 .then(async(response2) => {
                     //GUARDAR DETALLE
                     const _id_fsa=response2.data;
+                    console.log('hi')
                     await axios
                     .post(conexion, {
                         opcion: 26,
+                        dir_ip:dirIp,
                         sustento:sustento,
                         autorizado_por:autorizadoPor,
                         fecha:fecha,
@@ -426,6 +470,7 @@ const FsaV2 = () => {
     <div className='card'>
         <Toast ref={toast} />
         <div className=" table-header">
+            <a className="text-left" href={ruta_fsa}><i className="pi pi-angle-double-left mr-2"></i>Regresar</a>
              <h2>SOLICITUD DE ACCESOS</h2>
              <div><Button label="Limpiar" className="p-button-secondary"  onClick={clearData} /></div>
             
@@ -439,22 +484,21 @@ const FsaV2 = () => {
             </Divider>
             <div className="grid ml-4 mt-4 text-sm">
                 <div className='col-12 md:col-4 grid '>     
-                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="dni">DNI :</label>
-                    <InputText className={classNames({"p-invalid": submitted&& dni===""},'col-12 md:col-8')}
-                        id="dni"
-                        value={dni}
-                        placeholder="Ingrese número DNI"
-                        onChange={(e) => setDni(e.target.value)}
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="dni_fil">DNI :</label>
+                    <InputText className='col-12 md:col-8'
+                        id="dni_fil"
+                        value={filertDni}
+                        placeholder="Buscar por número DNI"
+                        onChange={(e) => setFilterDni(e.target.value)}
                         autoFocus
-                    />
-                    {submitted && dni==="" &&(
-                    <small className="ml-2 p-error col-12 p-0">Falta DNI</small>)}  
+                    /> 
+                </div>
+                <div className='col-12 md:col-4 grid'>     
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="nombre_fil">Nombre :</label>
+                    <Dropdown id="nombre_fil" className="col-12 md:col-8 text-left"  value={filertNombre} options={empleados} onChange={(e)=>setFilterNombre(e.value)} placeholder="Buscar por nombre" filter/>
                 </div>
                 <div className='col-12 md:col-4 text-left'>
                     <Button label="Buscar" className="p-button-secondary"  onClick={buscarEmpleado} />
-                </div>
-                <div className='col-12 md:col-4 text-right text-gray-500 font-semibold'>
-                    <p className="p-p m-0 text-xl">{fecha}</p>
                 </div>
             </div>
             <div className="grid ml-4 mt-4 text-sm">
@@ -466,6 +510,7 @@ const FsaV2 = () => {
                         placeholder="Ingrese nombre"
                         onChange={(e) => setNombre(e.target.value)}
                         autoFocus
+                        disabled
                     />
                     {submitted && nombre==="" &&(
                     <small className="ml-2 p-error col-12 p-0">Falta nombre</small>)}  
@@ -478,6 +523,7 @@ const FsaV2 = () => {
                         placeholder="Ingrese apellido paterno"
                         onChange={(e) => setApePaterno(e.target.value)}
                         autoFocus
+                        disabled
                     />
                     {submitted && apePaterno==="" &&(
                     <small className="ml-2 p-error col-12 p-0">Falta apellido paterno</small>)}  
@@ -490,12 +536,26 @@ const FsaV2 = () => {
                         placeholder="Ingrese apellido materno"
                         onChange={(e) => setApeMaterno(e.target.value)}
                         autoFocus
+                        disabled
                     />
                     {submitted && apeMaterno==="" &&(
                     <small className="ml-2 p-error col-12 p-0">Falta apellido materno</small>)}  
                 </div>
             </div>
             <div className="grid ml-4 mt-4 text-sm">
+                <div className='col-12 md:col-4 grid '>     
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="dni">DNI :</label>
+                    <InputText className={classNames({"p-invalid": submitted&& dni===""},'col-12 md:col-8')}
+                        id="dni"
+                        value={dni}
+                        placeholder="Ingrese número DNI"
+                        onChange={(e) => setDni(e.target.value)}
+                        autoFocus
+                        disabled
+                    />
+                    {submitted && dni==="" &&(
+                    <small className="ml-2 p-error col-12 p-0">Falta DNI</small>)}  
+                </div>
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left font-semibold' htmlFor="Correo">Correo eletrónico :</label>
                     <InputText className='col-12 md:col-8' 
@@ -504,35 +564,26 @@ const FsaV2 = () => {
                         placeholder="Ingrese correo"
                         onChange={(e) => setCorreo(e.target.value)}
                         autoFocus
+                        disabled
                     />
                 </div>
                 <div className='col-12 md:col-4 grid'>     
-                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="dirIp">IP :</label>
-                    <InputText className='col-12 md:col-8' 
-                        id="dirIp"
-                        value={dirIp}
-                        placeholder="Ingrese dirección ip"
-                        onChange={(e) => setDirIp(e.target.value)}
-                        autoFocus
-                    />
-                </div>
-                <div className='col-12 md:col-4 grid'>     
-                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="oficina">Oficina :</label>
-                    <Dropdown id="oficina" className="col-12 md:col-8 text-left"  value={oficina} options={oficinas} onChange={(e)=>setOficina(e.value)} placeholder="Ingrese oficina" filter/>
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="unidad">Unidad :</label>
+                    <Dropdown disabled id="unidad" className="col-12 md:col-8 text-left"  value={unidad} options={unidades} onChange={(e)=>setUnidad(e.value)} placeholder="Ingrese unidad" filter/>
                 </div>
             </div>
             <div className="grid ml-4 mt-4 text-sm">
                 <div className='col-12 md:col-4 grid'>     
-                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="unidad">Unidad :</label>
-                    <Dropdown id="unidad" className="col-12 md:col-8 text-left"  value={unidad} options={unidades} onChange={(e)=>setUnidad(e.value)} placeholder="Ingrese unidad" filter/>
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="oficina">Oficina :</label>
+                    <Dropdown disabled id="oficina" className="col-12 md:col-8 text-left"  value={oficina} options={oficinas} onChange={(e)=>setOficina(e.value)} placeholder="Ingrese oficina" filter/>
                 </div>
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left font-semibold' htmlFor="area">Área :</label>
-                    <Dropdown id="area" className="col-12 md:col-8 text-left"  value={area} options={areas} onChange={(e)=>setArea(e.value)} placeholder="Ingrese area" filter />
+                    <Dropdown disabled id="area" className="col-12 md:col-8 text-left"  value={area} options={areas} onChange={(e)=>setArea(e.value)} placeholder="Ingrese area" filter />
                 </div>
                 <div className='col-12 md:col-4 grid'>     
                     <label className='col-12 md:col-3 text-left font-semibold' htmlFor="cargo">Cargo :</label>
-                    <Dropdown id="cargo" className="col-12 md:col-8 text-left"  value={cargo} options={perfiles} onChange={(e)=>setCargo(e.value)} placeholder="Ingrese cargo" filter/>
+                    <Dropdown disabled id="cargo" className="col-12 md:col-8 text-left"  value={cargo} options={perfiles} onChange={(e)=>setCargo(e.value)} placeholder="Ingrese cargo" filter/>
                 </div>
             </div>
         </div>
@@ -685,21 +736,28 @@ const FsaV2 = () => {
                     <b>DATOS DE AUTORIZACIÓN</b>
                 </div>
             </Divider>
-            <div className="grid ml-4  text-left text-sm">
-                <div className="col-12 md:col-4">
-                    <label className='block mb-2 font-semibold' htmlFor="sustento">Sustento:</label>
-                    <InputTextarea id="sustento" className="col-12" rows={2} value={sustento} onChange={(e) => setSustento(e.target.value)} autoResize placeholder="Ingrese sustento de la autorización" />
+            <div className="grid ml-4 mt-4 text-sm mb-3">
+                <div className='col-12 md:col-4 grid'>     
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="dirIp">IP :</label>
+                    <InputText className='col-12 md:col-8' 
+                        id="dirIp"
+                        value={dirIp}
+                        placeholder="Ingrese dirección ip"
+                        onChange={(e) => setDirIp(e.target.value)}
+                    />
                 </div>
-                <div className="col-12 md:col-8">
-                    <label className='block mb-2 font-semibold' htmlFor="autorizado">Autorizado por:</label>
-                    <div className="grid my-auto">
-                        <SelectButton id="autorizado" className="mb-2 col-12 md:col-4 " value={autorizado} options={listAutorizado} onChange={(e) => setAutorizado(e.value)} />
-                        <div className="col-12 md:col-8">
-                            {autorizadoView()}
-                        </div>
-                    </div>      
+                <div className="col-12 md:col-8 grid">
+                    <label className='col-12 md:col-3 mb-2 font-semibold text-left' htmlFor="sustento">Sustento:</label>
+                    <InputTextarea id="sustento" className="col-12 md:col-8 " rows={2} value={sustento} onChange={(e) => setSustento(e.target.value)} autoResize placeholder="Ingrese sustento de la autorización" />
                 </div>
             </div>
+            <div className="grid ml-4  text-left text-sm">
+                <div className='col-12 md:col-4 grid'>
+                    <label className='col-12 md:col-3 text-left font-semibold' htmlFor="autorizado">Autorizado por :</label>
+                    <SelectButton id="autorizado" className="m-0 p-0 col-12 md:col-8" value={autorizado} options={listAutorizado} onChange={(e) => setAutorizado(e.value)} />  
+                </div>
+                {autorizadoView()}    
+            </div>        
             {psipdf()}
             
               <PDFDownloadLink 
